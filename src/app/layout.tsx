@@ -37,7 +37,14 @@ export default function RootLayout({
       dir="rtl"
       className={`${cormorant.variable} ${vazirmatn.variable}`}
     >
-      <body className="font-sans bg-[#0a0a0a] text-[#F7F5F0] antialiased selection:bg-[#D8C2A8] selection:text-[#060605]">
+      {/* suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
+          attributes such as data-new-gr-c-s-check-loaded / data-gr-ext-installed
+          onto <body> before React hydrates, causing a false-positive attribute
+          mismatch. Scoped to this element only; children are unaffected. */}
+      <body
+        suppressHydrationWarning
+        className="font-sans bg-[#0a0a0a] text-[#F7F5F0] antialiased selection:bg-[#D8C2A8] selection:text-[#060605]"
+      >
         {children}
       </body>
     </html>

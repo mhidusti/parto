@@ -1,84 +1,121 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { AccountSidebar, AccountTab } from '@/components/account/AccountSidebar';
 import { ProfileInfo } from '@/components/account/ProfileInfo';
 import { RecentOrders } from '@/components/account/RecentOrders';
+import { WishlistCarousel } from '@/components/account/WishlistCarousel';
 import { OrdersList } from '@/components/account/OrdersList';
 import { AddressesList } from '@/components/account/AddressesList';
 import { WishlistList } from '@/components/account/WishlistList';
 import { PaymentMethodsList } from '@/components/account/PaymentMethodsList';
 import { ExclusiveAccessBanner } from '@/components/account/ExclusiveAccessBanner';
-import { Header } from "@/components/layout/Header"; 
-import { Footer } from "@/components/layout/Footer";
+import type { UserProfileData } from '@/components/account/EditProfileModal';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+
+const waveCream =
+  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60' preserveAspectRatio='none'><path d='M0 60V38C260 6 520 18 760 34C1040 52 1260 26 1440 0V60Z' fill='black'/></svg>\")";
+const waveDark =
+  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60' preserveAspectRatio='none'><path d='M0 60V30C220 8 470 2 720 22C1000 44 1230 30 1440 6V60Z' fill='black'/></svg>\")";
+
+const maskStyle = (img: string): React.CSSProperties => ({
+  WebkitMaskImage: img,
+  maskImage: img,
+  WebkitMaskSize: '100% 100%',
+  maskSize: '100% 100%',
+});
 
 export default function AccountPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<AccountTab>('profile');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [user, setUser] = useState<UserProfileData>({
+    firstName: 'سیده',
+    lastName: 'نژاد',
+    email: 's.najafii@gmail.com',
+    phone: '۰۹۱۲ ۳۴۵ ۶۷۸۹',
+    address: 'تهران، خیابان آزادی، پلاک ۱۲۳',
+  });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
-  if (!mounted) {
-    return <div className="w-full min-h-screen bg-[#060605]" />;
-  }
+  if (!mounted) return <div className="min-h-screen w-full bg-[#f6ebe0]" />;
 
   return (
-    <div className="w-full min-h-screen bg-[#060605] text-[#F7F5F0] font-sans antialiased selection:bg-[#D8C2A8] selection:text-[#060605] flex flex-col justify-between">
-      
-      {/* GLOBAL HEADER */}
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#f6e9de] font-sans text-[#2a1a12]">
       <Header />
 
-      {/* MAIN CONTAINER */}
-      <main className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-12 w-full flex-1">
-        {/* TITLE AREA */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end pb-12 mb-12 border-b border-white/10 gap-6">
-          <div>
-       
-          
-            <p className="font-sans text-xs font-light text-[#8A857D] mt-3">Manage your details, orders and preferences.</p>
-          </div>
+      {/* هیرو */}
+      <section className="relative h-[300px] w-full overflow-hidden bg-[#2a1a12] isolate">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              'url("/images/product-hero/product-hero-model.jpg"), radial-gradient(60% 90% at 25% 45%, #d9b595 0%, #946648 40%, #3b2419 78%, #1c110c 100%)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'left center',
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-[#1c110c]/80 via-[#2a1a12]/30 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#1c110c]/80 to-transparent" />
 
+        <div className="relative mx-auto flex h-full max-w-[1360px] items-center justify-start px-10 pt-14">
+          <div className="text-right">
+            <h1 className="text-[36px] font-bold leading-[1.4] text-[#fbf1e6]">حساب کاربری</h1>
+            <p className="mt-1 text-[14px] text-[#eadccd]">به دنیای درخشان پارتو خوش آمدید</p>
+          </div>
         </div>
 
-        {/* LAYOUT GRID - FIXED 12 COLUMNS FOR DESKTOP */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-stretch">
-          
-          {/* SIDEBAR (3 Columns) */}
-          <div className="md:col-span-3 lg:col-span-3 xl:col-span-3">
-            <AccountSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-          </div>
+        <div className="absolute inset-x-0 bottom-0 h-[56px] bg-[#f6e9de]" style={maskStyle(waveCream)} />
+      </section>
 
-          {/* MAIN CONTENT AREA (5 Columns) */}
-          <section className="md:col-span-5 lg:col-span-5 xl:col-span-5 space-y-12">
+      {/* محتوا */}
+      <main className="relative mx-auto w-full max-w-[1360px] px-4 pb-14 pt-2 sm:px-8 lg:px-10">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+          {/* ستون اصلی (راست) */}
+          <section className="space-y-6 lg:col-span-8 xl:col-span-9">
             {activeTab === 'profile' && (
               <>
-                <ProfileInfo />
+                <ProfileInfo user={user} onSave={setUser} modalOpen={modalOpen} setModalOpen={setModalOpen} />
                 <RecentOrders />
+                <WishlistCarousel onViewAll={() => setActiveTab('wishlist')} />
               </>
             )}
-
             {activeTab === 'orders' && <OrdersList />}
-
-            {activeTab === 'addresses' && <AddressesList />}
-
             {activeTab === 'wishlist' && <WishlistList />}
-
-            {activeTab === 'payment' && <PaymentMethodsList />}
+            {activeTab === 'addresses' && <AddressesList />}
+            {activeTab === 'account' && (
+              <>
+                <ProfileInfo user={user} onSave={setUser} modalOpen={modalOpen} setModalOpen={setModalOpen} />
+                <PaymentMethodsList />
+              </>
+            )}
           </section>
 
-          {/* RIGHT BANNER (4 Columns) */}
-          <div className="md:col-span-4 lg:col-span-4 xl:col-span-4 h-full">
+          {/* سایدبار (چپ) */}
+          <div className="space-y-6 lg:col-span-4 xl:col-span-3">
+            <AccountSidebar
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              name={`${user.firstName} ${user.lastName}`}
+              email={user.email}
+              avatarUrl={user.avatarUrl}
+              onEditProfile={() => {
+                setActiveTab('profile');
+                setModalOpen(true);
+              }}
+              onLogout={() => (window.location.href = '/login')}
+            />
             <ExclusiveAccessBanner />
           </div>
-
         </div>
       </main>
 
-      {/* GLOBAL FOOTER */}
+      {/* موج گذار به فوتر */}
+      <div className="-mb-px h-[60px] w-full bg-[#1c110c]" style={maskStyle(waveDark)} />
       <Footer />
-
     </div>
   );
 }

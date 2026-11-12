@@ -109,7 +109,7 @@ export default function OrderDetailPage({
 
   return (
     <div
-      className="w-full min-h-screen bg-[#060605] text-[#F7F5F0] font-sans antialiased selection:bg-[#D8C2A8] selection:text-[#060605]"
+      className="w-full min-h-screen bg-[#f8efe6] text-[#2a1a12] font-sans antialiased selection:bg-[#e8c9aa] selection:text-[#2a1a12]"
       dir="rtl"
     >
       <main className="max-w-[1200px] mx-auto px-6 sm:px-12 py-12">
@@ -118,19 +118,19 @@ export default function OrderDetailPage({
         <div className="mb-8">
           <Link
             href="/account"
-            className="inline-flex items-center gap-2 font-sans text-[10px] tracking-[0.25em] text-[#8A857D] hover:text-[#D8C2A8] transition-colors mb-6"
+            className="inline-flex items-center gap-2 font-sans text-[10px] tracking-[0.25em] text-[#7a6252] hover:text-[#b3865f] transition-colors mb-6"
           >
             ← بازگشت به حساب کاربری
           </Link>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#d9bfa6]/60">
             <div>
-              <span className="font-sans text-[10px] tracking-[0.4em] text-[#D8C2A8]">
+              <span className="font-sans text-[10px] tracking-[0.4em] text-[#9a6b47]">
                 جزئیات سفارش
               </span>
 
               <h1
-                className="font-serif text-3xl sm:text-5xl font-extralight tracking-wide text-[#F7F5F0] mt-1"
+                className="font-serif text-3xl sm:text-5xl font-extralight tracking-wide text-[#2a1a12] mt-1"
                 dir="ltr"
               >
                 {order.orderNumber}
@@ -141,14 +141,14 @@ export default function OrderDetailPage({
               <span
                 className={`text-[10px] font-sans px-3 py-1.5 rounded-full border ${
                   order.status === 'DELIVERED'
-                    ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
-                    : 'border-amber-500/30 text-amber-400 bg-amber-500/10'
+                    ? 'border-[#bcd3b0] text-[#3f6b3a] bg-[#dfead7]'
+                    : 'border-[#e6cc95] text-[#8a5a14] bg-[#f6e6c6]'
                 }`}
               >
                 {getStatusLabel(order.status)}
               </span>
 
-              <span className="font-mono text-xs text-[#8A857D]">
+              <span className="font-mono text-xs text-[#7a6252]">
                 {order.date}
               </span>
             </div>
@@ -160,7 +160,7 @@ export default function OrderDetailPage({
 
           {/* لیست محصولات */}
           <div className="lg:col-span-8 space-y-6">
-            <h2 className="font-serif text-xl font-light text-[#F7F5F0]">
+            <h2 className="font-serif text-xl font-light text-[#2a1a12]">
               محصولات خریداری‌شده
             </h2>
 
@@ -168,10 +168,10 @@ export default function OrderDetailPage({
               {order.items.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-[#0B0B0A] border border-white/10 rounded-xl p-5 flex items-center justify-between gap-6"
+                  className="bg-white/50 border border-[#d9bfa6]/60 rounded-2xl p-5 flex items-center justify-between gap-6"
                 >
                   <div className="flex items-center gap-5">
-                    <div className="w-20 h-20 rounded-lg overflow-hidden border border-white/10 bg-white/5 flex-none">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden border border-[#d9bfa6]/60 bg-white/40 flex-none">
                       <img
                         src={item.image}
                         alt={item.title}
@@ -180,21 +180,21 @@ export default function OrderDetailPage({
                     </div>
 
                     <div>
-                      <h3 className="font-serif text-lg font-light text-[#F7F5F0]">
+                      <h3 className="font-serif text-lg font-light text-[#2a1a12]">
                         {item.title}
                       </h3>
 
-                      <p className="font-mono text-[10px] text-[#D8C2A8] mt-1">
+                      <p className="font-mono text-[10px] text-[#9a6b47] mt-1">
                         {item.code}
                       </p>
 
-                      <p className="font-sans text-xs text-[#6A655D] mt-1">
+                      <p className="font-sans text-xs text-[#8a7261] mt-1">
                         تعداد: {item.quantity}
                       </p>
                     </div>
                   </div>
 
-                  <div className="font-serif text-lg text-[#F7F5F0]">
+                  <div className="font-serif text-lg text-[#2a1a12]">
                     {item.price}
                   </div>
                 </div>
@@ -206,41 +206,41 @@ export default function OrderDetailPage({
           <div className="lg:col-span-4 space-y-8">
 
             {/* اطلاعات ارسال */}
-            <div className="bg-[#0B0B0A] border border-white/10 rounded-xl p-6 space-y-6">
+            <div className="bg-white/50 border border-[#d9bfa6]/60 rounded-2xl p-6 space-y-6">
               <div>
-                <span className="block font-sans text-[9px] tracking-[0.25em] text-[#6A655D] mb-2">
+                <span className="block font-sans text-[9px] tracking-[0.25em] text-[#8a7261] mb-2">
                   آدرس ارسال
                 </span>
 
-                <p className="font-sans text-xs font-light text-[#A8A39A] leading-relaxed">
+                <p className="font-sans text-xs font-light text-[#6b4f3e] leading-relaxed">
                   {order.shippingAddress}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/10">
-                <span className="block font-sans text-[9px] tracking-[0.25em] text-[#6A655D] mb-2">
+              <div className="pt-4 border-t border-[#d9bfa6]/60">
+                <span className="block font-sans text-[9px] tracking-[0.25em] text-[#8a7261] mb-2">
                   روش پرداخت
                 </span>
 
-                <p className="font-sans text-xs font-light text-[#A8A39A]">
+                <p className="font-sans text-xs font-light text-[#6b4f3e]">
                   {order.paymentMethod}
                 </p>
               </div>
             </div>
 
             {/* خلاصه مبلغ */}
-            <div className="bg-[#0B0B0A] border border-white/10 rounded-xl p-6 space-y-4">
-              <div className="flex justify-between font-sans text-xs text-[#8A857D]">
+            <div className="bg-white/50 border border-[#d9bfa6]/60 rounded-2xl p-6 space-y-4">
+              <div className="flex justify-between font-sans text-xs text-[#7a6252]">
                 <span>جمع سفارش</span>
                 <span>{order.totalPrice}</span>
               </div>
 
-              <div className="flex justify-between font-sans text-xs text-[#8A857D]">
+              <div className="flex justify-between font-sans text-xs text-[#7a6252]">
                 <span>هزینه ارسال</span>
-                <span className="text-[#D8C2A8]">رایگان</span>
+                <span className="text-[#9a6b47]">رایگان</span>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex justify-between font-serif text-xl text-[#F7F5F0]">
+              <div className="pt-4 border-t border-[#d9bfa6]/60 flex justify-between font-serif text-xl text-[#2a1a12]">
                 <span>مبلغ نهایی</span>
                 <span>{order.totalPrice}</span>
               </div>

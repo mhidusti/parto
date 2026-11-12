@@ -83,19 +83,19 @@ export const PaymentMethodsList: React.FC = () => {
   return (
     <div className="space-y-6 text-right" dir="rtl">
       {/* HEADER */}
-      <div className="flex justify-between items-center pb-4 border-b border-white/10">
+      <div className="flex justify-between items-center pb-4 border-b border-[#d9bfa6]/60">
         <div>
-          <h2 className="font-serif text-xl font-light tracking-wide text-[#F7F5F0]">
+          <h2 className="font-serif text-xl font-light tracking-wide text-[#2a1a12]">
             روش‌های پرداخت
           </h2>
-          <p className="font-sans text-xs text-[#8A857D] mt-1">
+          <p className="font-sans text-xs text-[#7a6252] mt-1">
             کارت‌های بانکی ذخیره‌شده و ترجیحات صورتحساب خود را مدیریت کنید.
           </p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 rounded-full border border-[#D8C2A8]/40 bg-[#D8C2A8]/10 font-sans text-xs tracking-wider text-[#D8C2A8] hover:bg-[#D8C2A8] hover:text-[#060605] transition-all duration-300"
+          className="px-4 py-2 rounded-full border border-[#c8a07c]/40 bg-[#e8c9aa]/10 font-sans text-xs tracking-wider text-[#9a6b47] hover:bg-[#e8c9aa] hover:text-[#2a1a12] transition-all duration-300"
         >
           + افزودن کارت جدید
         </button>
@@ -106,19 +106,19 @@ export const PaymentMethodsList: React.FC = () => {
         {cards.map((card) => (
           <div
             key={card.id}
-            className={`bg-[#0B0B0A] border rounded-xl p-5 flex flex-col justify-between transition-all duration-300 ${
+            className={`bg-white/50 border rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 ${
               card.isDefault
-                ? 'border-[#D8C2A8]/60 shadow-[0_0_15px_rgba(216,194,168,0.05)]'
-                : 'border-white/10 hover:border-white/20'
+                ? 'border-[#c8a07c]/60 shadow-[0_0_15px_rgba(216,194,168,0.05)]'
+                : 'border-[#d9bfa6]/60 hover:border-[#c8a07c]'
             }`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
-                <span className="font-mono text-xs tracking-wider font-medium text-[#D8C2A8] bg-white/5 px-2.5 py-1 rounded border border-white/10" dir="ltr">
+                <span className="font-mono text-xs tracking-wider font-medium text-[#9a6b47] bg-white/40 px-2.5 py-1 rounded border border-[#d9bfa6]/60" dir="ltr">
                   {card.cardType}
                 </span>
                 {card.isDefault && (
-                  <span className="font-sans text-[10px] tracking-wider px-2 py-0.5 rounded-full border border-[#D8C2A8]/40 text-[#D8C2A8] bg-[#D8C2A8]/10">
+                  <span className="font-sans text-[10px] tracking-wider px-2 py-0.5 rounded-full border border-[#c8a07c]/40 text-[#9a6b47] bg-[#e8c9aa]/10">
                     پیش‌فرض
                   </span>
                 )}
@@ -126,27 +126,27 @@ export const PaymentMethodsList: React.FC = () => {
 
               <button
                 onClick={() => handleDelete(card.id)}
-                className="font-sans text-xs tracking-wider text-[#8A857D] hover:text-red-400 transition-colors"
+                className="font-sans text-xs tracking-wider text-[#7a6252] hover:text-[#b4472f] transition-colors"
               >
                 حذف
               </button>
             </div>
 
             <div className="space-y-1">
-              <div className="font-mono text-base text-[#F7F5F0] tracking-widest" dir="ltr">
+              <div className="font-mono text-base text-[#2a1a12] tracking-widest" dir="ltr">
                 {card.cardNumber}
               </div>
-              <div className="flex justify-between items-center text-xs text-[#8A857D] font-sans pt-2">
+              <div className="flex justify-between items-center text-xs text-[#7a6252] font-sans pt-2">
                 <span>{card.cardHolder}</span>
                 <span className="font-mono text-[11px]" dir="ltr">انقضا: {card.expiryDate}</span>
               </div>
             </div>
 
             {!card.isDefault && (
-              <div className="pt-4 mt-4 border-t border-white/5">
+              <div className="pt-4 mt-4 border-t border-[#d9bfa6]/40">
                 <button
                   onClick={() => handleSetDefault(card.id)}
-                  className="font-sans text-xs tracking-wider text-[#8A857D] hover:text-[#D8C2A8] transition-colors"
+                  className="font-sans text-xs tracking-wider text-[#7a6252] hover:text-[#b3865f] transition-colors"
                 >
                   تنظیم به‌عنوان روش پرداخت پیش‌فرض
                 </button>
@@ -156,11 +156,11 @@ export const PaymentMethodsList: React.FC = () => {
         ))}
 
         {cards.length === 0 && (
-          <div className="text-center py-12 border border-dashed border-white/10 rounded-xl">
-            <p className="font-sans text-xs text-[#8A857D]">هیچ روش پرداختی ذخیره نشده است.</p>
+          <div className="text-center py-12 border border-dashed border-[#d9bfa6]/60 rounded-2xl">
+            <p className="font-sans text-xs text-[#7a6252]">هیچ روش پرداختی ذخیره نشده است.</p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="mt-3 font-sans text-xs tracking-wider text-[#D8C2A8] underline"
+              className="mt-3 font-sans text-xs tracking-wider text-[#9a6b47] underline"
             >
               افزودن کارت اعتباری یا بانکی جدید
             </button>
@@ -177,20 +177,20 @@ export const PaymentMethodsList: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              className="absolute inset-0 bg-[#1c110c]/70 backdrop-blur-md"
             />
 
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative z-10 w-full max-w-lg bg-[#0E0E0D] border border-white/15 rounded-2xl p-8 shadow-[0_25px_60px_rgba(0,0,0,0.8)] text-right"
+              className="relative z-10 w-full max-w-lg bg-[#f8efe6] border border-[#d9bfa6]/60 rounded-2xl p-8 shadow-[0_25px_60px_rgba(0,0,0,0.8)] text-right"
             >
-              <div className="flex justify-between items-center pb-4 border-b border-white/10 mb-6">
-                <h3 className="font-serif text-xl font-light text-[#F7F5F0]">افزودن کارت پرداخت</h3>
+              <div className="flex justify-between items-center pb-4 border-b border-[#d9bfa6]/60 mb-6">
+                <h3 className="font-serif text-xl font-light text-[#2a1a12]">افزودن کارت پرداخت</h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="text-[#8A857D] hover:text-[#F7F5F0]"
+                  className="text-[#7a6252] hover:text-[#2a1a12]"
                 >
                   ✕
                 </button>
@@ -198,20 +198,20 @@ export const PaymentMethodsList: React.FC = () => {
 
               <form onSubmit={handleAddCard} className="space-y-4">
                 <div>
-                  <label className="block font-sans text-xs tracking-wider text-[#8A857D] mb-1">
+                  <label className="block font-sans text-xs tracking-wider text-[#7a6252] mb-1">
                     نام دارنده کارت
                   </label>
                   <input
                     type="text"
                     value={formData.cardHolder}
                     onChange={(e) => setFormData({ ...formData, cardHolder: e.target.value })}
-                    className="w-full bg-[#141412] border border-white/10 rounded-lg px-4 py-2.5 font-sans text-xs text-[#F7F5F0] focus:outline-none focus:border-[#D8C2A8]"
+                    className="w-full bg-white/60 border border-[#d9bfa6]/60 rounded-lg px-4 py-2.5 font-sans text-xs text-[#2a1a12] focus:outline-none focus:border-[#b3865f]"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block font-sans text-xs tracking-wider text-[#8A857D] mb-1">
+                  <label className="block font-sans text-xs tracking-wider text-[#7a6252] mb-1">
                     شماره کارت
                   </label>
                   <input
@@ -219,7 +219,7 @@ export const PaymentMethodsList: React.FC = () => {
                     placeholder="۴۵۳۲ •••• •••• ۸۸۱۹"
                     value={formData.cardNumber}
                     onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                    className="w-full bg-[#141412] border border-white/10 rounded-lg px-4 py-2.5 font-mono text-xs text-[#F7F5F0] focus:outline-none focus:border-[#D8C2A8]"
+                    className="w-full bg-white/60 border border-[#d9bfa6]/60 rounded-lg px-4 py-2.5 font-mono text-xs text-[#2a1a12] focus:outline-none focus:border-[#b3865f]"
                     dir="ltr"
                     maxLength={19}
                     required
@@ -228,7 +228,7 @@ export const PaymentMethodsList: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-sans text-xs tracking-wider text-[#8A857D] mb-1">
+                    <label className="block font-sans text-xs tracking-wider text-[#7a6252] mb-1">
                       تاریخ انقضا (ماه/سال)
                     </label>
                     <input
@@ -236,13 +236,13 @@ export const PaymentMethodsList: React.FC = () => {
                       placeholder="MM/YY"
                       value={formData.expiryDate}
                       onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
-                      className="w-full bg-[#141412] border border-white/10 rounded-lg px-4 py-2.5 font-mono text-xs text-[#F7F5F0] focus:outline-none focus:border-[#D8C2A8]"
+                      className="w-full bg-white/60 border border-[#d9bfa6]/60 rounded-lg px-4 py-2.5 font-mono text-xs text-[#2a1a12] focus:outline-none focus:border-[#b3865f]"
                       dir="ltr"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block font-sans text-xs tracking-wider text-[#8A857D] mb-1">
+                    <label className="block font-sans text-xs tracking-wider text-[#7a6252] mb-1">
                       کد امنیتی (CVV)
                     </label>
                     <input
@@ -250,7 +250,7 @@ export const PaymentMethodsList: React.FC = () => {
                       placeholder="•••"
                       value={formData.cvv}
                       onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
-                      className="w-full bg-[#141412] border border-white/10 rounded-lg px-4 py-2.5 font-mono text-xs text-[#F7F5F0] focus:outline-none focus:border-[#D8C2A8]"
+                      className="w-full bg-white/60 border border-[#d9bfa6]/60 rounded-lg px-4 py-2.5 font-mono text-xs text-[#2a1a12] focus:outline-none focus:border-[#b3865f]"
                       dir="ltr"
                       maxLength={4}
                       required
@@ -258,17 +258,17 @@ export const PaymentMethodsList: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 flex items-center justify-end gap-4 border-t border-white/10 mt-6">
+                <div className="pt-4 flex items-center justify-end gap-4 border-t border-[#d9bfa6]/60 mt-6">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-5 py-2.5 font-sans text-xs tracking-wider text-[#8A857D]"
+                    className="px-5 py-2.5 font-sans text-xs tracking-wider text-[#7a6252]"
                   >
                     انصراف
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-full bg-[#D8C2A8] text-[#060605] font-sans text-xs tracking-wider font-medium"
+                    className="px-6 py-2.5 rounded-full bg-[#e8c9aa] text-[#2a1a12] font-sans text-xs tracking-wider font-medium"
                   >
                     ذخیره کارت
                   </button>

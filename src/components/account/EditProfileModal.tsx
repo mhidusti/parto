@@ -8,6 +8,7 @@ export interface UserProfileData {
   lastName: string;
   email: string;
   phone: string;
+  address?: string;
   avatarUrl?: string;
 }
 
@@ -62,7 +63,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            className="absolute inset-0 bg-[#1c110c]/70 backdrop-blur-md"
           />
 
           {/* Modal Container */}
@@ -71,22 +72,22 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10 w-full max-w-lg bg-[#0E0E0D] border border-white/15 rounded-2xl p-8 sm:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.8)] text-right"
+            className="relative z-10 w-full max-w-lg bg-[#f8efe6] border border-[#d9bfa6]/60 rounded-2xl p-8 sm:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.8)] text-right"
           >
             {/* Header */}
-            <div className="flex justify-between items-center pb-6 border-b border-white/10 mb-6">
+            <div className="flex justify-between items-center pb-6 border-b border-[#d9bfa6]/60 mb-6">
               <div>
-                <span className="font-sans text-[10px] tracking-wider text-[#D8C2A8]">
+                <span className="font-sans text-[10px] tracking-wider text-[#9a6b47]">
                   تنظیمات پروفایل
                 </span>
-                <h3 className="font-serif text-2xl font-light text-[#F7F5F0] mt-1">
+                <h3 className="font-serif text-2xl font-light text-[#2a1a12] mt-1">
                   ویرایش اطلاعات شخصی
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[#8A857D] hover:text-[#F7F5F0] hover:border-white/30 transition-all"
+                className="w-8 h-8 rounded-full border border-[#d9bfa6]/60 flex items-center justify-center text-[#7a6252] hover:text-[#2a1a12] hover:border-[#c8a07c] transition-all"
               >
                 ✕
               </button>
@@ -95,8 +96,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* AVATAR UPLOAD SECTION */}
-              <div className="flex items-center gap-6 pb-6 border-b border-white/10">
-                <div className="relative w-20 h-20 rounded-full border border-white/20 bg-white/5 overflow-hidden flex items-center justify-center font-serif text-3xl text-[#D8C2A8] flex-none">
+              <div className="flex items-center gap-6 pb-6 border-b border-[#d9bfa6]/60">
+                <div className="relative w-20 h-20 rounded-full border border-[#c8a07c]/50 bg-white/40 overflow-hidden flex items-center justify-center font-serif text-3xl text-[#9a6b47] flex-none">
                   {previewImage ? (
                     <img src={previewImage} alt="پیش‌نمایش پروفایل" className="w-full h-full object-cover" />
                   ) : (
@@ -115,11 +116,11 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 rounded-full border border-white/20 bg-white/5 font-sans text-xs tracking-wider text-[#F7F5F0] hover:bg-[#D8C2A8] hover:text-[#060605] hover:border-[#D8C2A8] transition-all duration-300"
+                    className="px-4 py-2 rounded-full border border-[#c8a07c]/50 bg-white/40 font-sans text-xs tracking-wider text-[#2a1a12] hover:bg-[#e8c9aa] hover:text-[#2a1a12] hover:border-[#c8a07c] transition-all duration-300"
                   >
                     بارگذاری تصویر جدید
                   </button>
-                  <p className="font-sans text-[11px] text-[#6A655D] mt-2">
+                  <p className="font-sans text-[11px] text-[#8a7261] mt-2">
                     فرمت‌های JPEG، PNG یا WEBP (حداکثر ۵ مگابایت)
                   </p>
                 </div>
@@ -128,7 +129,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               {/* INPUT FIELDS */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-sans text-xs tracking-wider text-[#8A857D] mb-2">
+                  <label className="block font-sans text-xs tracking-wider text-[#7a6252] mb-2">
                     نام
                   </label>
                   <input
@@ -136,13 +137,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="w-full bg-[#141412] border border-white/10 rounded-lg px-4 py-3 font-sans text-xs text-[#F7F5F0] focus:outline-none focus:border-[#D8C2A8] transition-colors"
+                    className="w-full bg-white/60 border border-[#d9bfa6]/60 rounded-lg px-4 py-3 font-sans text-xs text-[#2a1a12] focus:outline-none focus:border-[#b3865f] transition-colors"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block font-sans text-xs tracking-wider text-[#8A857D] mb-2">
+                  <label className="block font-sans text-xs tracking-wider text-[#7a6252] mb-2">
                     نام خانوادگی
                   </label>
                   <input
@@ -150,14 +151,14 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="w-full bg-[#141412] border border-white/10 rounded-lg px-4 py-3 font-sans text-xs text-[#F7F5F0] focus:outline-none focus:border-[#D8C2A8] transition-colors"
+                    className="w-full bg-white/60 border border-[#d9bfa6]/60 rounded-lg px-4 py-3 font-sans text-xs text-[#2a1a12] focus:outline-none focus:border-[#b3865f] transition-colors"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-sans text-xs tracking-wider text-[#8A857D] mb-2">
+                <label className="block font-sans text-xs tracking-wider text-[#7a6252] mb-2">
                   آدرس ایمیل
                 </label>
                 <input
@@ -165,14 +166,14 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full bg-[#141412] border border-white/10 rounded-lg px-4 py-3 font-sans text-xs text-[#F7F5F0] focus:outline-none focus:border-[#D8C2A8] transition-colors"
+                  className="w-full bg-white/60 border border-[#d9bfa6]/60 rounded-lg px-4 py-3 font-sans text-xs text-[#2a1a12] focus:outline-none focus:border-[#b3865f] transition-colors"
                   dir="ltr"
                   required
                 />
               </div>
 
               <div>
-                <label className="block font-sans text-xs tracking-wider text-[#8A857D] mb-2">
+                <label className="block font-sans text-xs tracking-wider text-[#7a6252] mb-2">
                   شماره همراه
                 </label>
                 <input
@@ -180,24 +181,24 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full bg-[#141412] border border-white/10 rounded-lg px-4 py-3 font-mono text-xs text-[#F7F5F0] focus:outline-none focus:border-[#D8C2A8] transition-colors"
+                  className="w-full bg-white/60 border border-[#d9bfa6]/60 rounded-lg px-4 py-3 font-mono text-xs text-[#2a1a12] focus:outline-none focus:border-[#b3865f] transition-colors"
                   dir="ltr"
                   required
                 />
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-6 border-t border-white/10 flex items-center justify-end gap-4">
+              <div className="pt-6 border-t border-[#d9bfa6]/60 flex items-center justify-end gap-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-6 py-3 font-sans text-xs tracking-wider text-[#8A857D] hover:text-[#F7F5F0] transition-colors"
+                  className="px-6 py-3 font-sans text-xs tracking-wider text-[#7a6252] hover:text-[#2a1a12] transition-colors"
                 >
                   انصراف
                 </button>
                 <button
                   type="submit"
-                  className="px-8 py-3 rounded-full bg-[#D8C2A8] text-[#060605] font-sans text-xs tracking-wider font-medium hover:bg-white transition-colors shadow-[0_0_20px_rgba(216,194,168,0.2)]"
+                  className="px-8 py-3 rounded-full bg-[#e8c9aa] text-[#2a1a12] font-sans text-xs tracking-wider font-medium hover:bg-[#f3dcc4] transition-colors shadow-[0_0_20px_rgba(216,194,168,0.2)]"
                 >
                   ذخیره تغییرات
                 </button>

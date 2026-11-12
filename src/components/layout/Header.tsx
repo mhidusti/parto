@@ -1,249 +1,174 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Logo } from "@/components/home/primitives";
 
-interface NavItem {
-  label: string;
-  href: string;
-}
-
-const navItems: NavItem[] = [
-  { label: "مجموعه آثار", href: "/collection" },
+const navItems = [
+  { label: "خانه", href: "/" },
   { label: "محصولات", href: "/product" },
   { label: "درباره ما", href: "/about" },
+  { label: "خدمات مشتریان", href: "/contact", caret: true },
+  { label: "وبلاگ", href: "/collection" },
   { label: "تماس با ما", href: "/contact" },
 ];
+
+const iconCls = "h-[18px] w-[18px]";
+
+function CartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 8a4 4 0 0 1 8 0" />
+      <rect x="5" y="8" width="14" height="12" rx="3" />
+    </svg>
+  );
+}
+function UserIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c1.5-4 4.5-5.5 8-5.5s6.5 1.5 8 5.5" />
+    </svg>
+  );
+}
+function HeartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
+      <path d="M12 20s-7-4.4-9-9.2C1.6 7.4 4 4.5 7 4.5c2 0 3.5 1.1 5 3 1.5-1.9 3-3 5-3 3 0 5.4 2.9 4 6.3C19 15.6 12 20 12 20Z" />
+    </svg>
+  );
+}
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4 4" />
+    </svg>
+  );
+}
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
-
-    document.addEventListener("keydown", handleEscape);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    document.addEventListener("keydown", onKey);
     document.body.style.overflow = menuOpen ? "hidden" : "";
-
     return () => {
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
 
-  const closeMenu = () => setMenuOpen(false);
-
   return (
     <>
+      {/* دسکتاپ */}
       <header
-        className={`
-          fixed top-0 left-0 w-full z-50 transition-all duration-500
-          px-8 sm:px-16 py-7
-          hidden lg:flex items-center justify-between
-          ${
-            scrolled
-              ? "bg-[#050505]/85 backdrop-blur-md py-5 border-b border-white/10"
-              : "bg-transparent"
-          }
-        `}
+        className={`fixed inset-x-0 top-0 z-50 hidden transition-all duration-500 lg:block ${
+          scrolled
+            ? "bg-[#1c110c]/85 shadow-[0_8px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl"
+            : "bg-gradient-to-b from-[#1c110c]/70 to-transparent"
+        }`}
       >
-        {/* سمت راست دسکتاپ: لوگو و نسخه */}
-        <div className="flex items-center gap-6">
-          <Link
-            href="/"
-            className="text-lg tracking-[0.25em] font-serif font-light text-[#F7F5F0] hover:text-[#D8C2A8] transition-colors duration-300"
-          >
-            پرتو
-          </Link>
+        <div className="mx-auto flex h-[88px] max-w-[1360px] items-center justify-between px-10">
+          {/* راست: لوگو */}
+          <Logo />
 
-          <div className="flex items-center gap-2 pr-6 border-r border-white/15">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
-            </span>
-
-            <span className="text-[11px] tracking-[0.2em] text-[#E8E5DF]/60 uppercase font-mono">
-              نسخه ۲۰۲۶
-            </span>
-          </div>
-        </div>
-
-        {/* ناوبری دسکتاپ با متن‌های بزرگ‌تر */}
-        <nav className="flex items-center gap-12">
-          {navItems.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="
-                relative text-[13px] tracking-[0.12em] text-[#E8E5DF]/80 uppercase font-normal
-                transition-colors duration-300 hover:text-[#F7F5F0]
-                after:content-[''] after:absolute after:bottom-[-6px] after:left-0 after:w-0 after:h-[1.5px]
-                after:bg-white/70 after:transition-all after:duration-300 hover:after:w-full
-              "
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* سمت چپ دسکتاپ: سبد خرید، حساب کاربری و ورود */}
-        <div className="flex items-center gap-5">
-          <Link
-            href="/cart"
-            aria-label="سبد خرید"
-            className="group relative flex items-center justify-center p-2 text-[#E8E5DF]/80 hover:text-[#D8C2A8] transition-colors duration-300 ml-1"
-          >
-            <svg
-              className="w-6 h-6 stroke-[1.4] transition-transform duration-300 group-hover:scale-110"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M8 8a4 4 0 0 1 8 0" />
-              <rect x="5" y="8" width="14" height="12" rx="3" />
-              <circle cx="12" cy="13" r="1.2" fill="currentColor" />
-            </svg>
-
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#D8C2A8] opacity-90 group-hover:scale-125 transition-transform" />
-          </Link>
-
-          <Link
-            href="/account"
-            className="px-5 py-2 rounded-full border border-white/20 text-[11px] tracking-[0.12em] text-[#E8E5DF] hover:border-[#D8C2A8] hover:text-[#D8C2A8] hover:bg-white/5 transition-all duration-300 uppercase font-light"
-          >
-            حساب کاربری
-          </Link>
-
-          <Link
-            href="/login"
-            className="px-5 py-2 rounded-full bg-[#F7F5F0] text-[#050505] text-[11px] tracking-[0.12em] hover:bg-[#D8C2A8] transition-all duration-300 uppercase font-medium"
-          >
-            ورود
-          </Link>
-        </div>
-      </header>
-
-      {/* ناوبری موبایل */}
-      <div className="lg:hidden">
-        <div className="fixed top-0 inset-x-0 z-[70] flex h-[74px] items-center justify-between border-b border-white/10 bg-[#11100F]/90 px-6 text-[#F7F5F0] backdrop-blur-xl">
-          <button
-            type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-label={menuOpen ? "بستن منو" : "باز کردن منو"}
-            aria-expanded={menuOpen}
-            aria-controls="aurel-mobile-navigation"
-            className="flex h-10 w-10 items-center justify-center"
-          >
-            <span className="flex w-6 flex-col gap-[7px]">
-              <span
-                className={`h-[1.5px] bg-current transition-all duration-300 ${
-                  menuOpen
-                    ? "w-6 translate-y-[4px] rotate-45"
-                    : "w-6"
-                }`}
-              />
-              <span
-                className={`h-[1.5px] bg-current transition-all duration-300 ${
-                  menuOpen
-                    ? "w-6 -translate-y-[4px] -rotate-45"
-                    : "w-4"
-                }`}
-              />
-            </span>
-          </button>
-
-          <Link
-            href="/"
-            onClick={closeMenu}
-            className="absolute left-1/2 -translate-x-1/2 font-serif text-2xl font-light tracking-[0.3em]"
-          >
-            پرتو
-          </Link>
-
-          <Link
-            href="/login"
-            onClick={closeMenu}
-            className="text-xs tracking-[0.15em] font-medium transition-colors hover:text-[#D8C2A8]"
-          >
-            ورود
-          </Link>
-        </div>
-
-        {/* منوی تمام صفحه موبایل */}
-        <div
-          id="aurel-mobile-navigation"
-          aria-hidden={!menuOpen}
-          className={`fixed inset-0 z-[65] bg-[#11100F] text-[#F7F5F0] transition-all duration-500 text-right ${
-            menuOpen
-              ? "visible translate-y-0 opacity-100"
-              : "invisible -translate-y-3 pointer-events-none opacity-0"
-          }`}
-        >
-          <div className="flex h-full flex-col justify-center px-8 pb-12 pt-24">
-            <p className="mb-8 font-mono text-[10px] tracking-[0.3em] text-white/50">
-              پرتو — اصالت و درخشش.
-            </p>
-
-            <nav className="flex flex-col">
-              {navItems.map((item, index) => (
+          {/* ناوبری */}
+          <nav className="flex items-center gap-9">
+            {navItems.map((item) => {
+              const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href) && item.label !== "خدمات مشتریان";
+              return (
                 <Link
                   key={item.label}
                   href={item.href}
-                  tabIndex={menuOpen ? 0 : -1}
-                  onClick={closeMenu}
-                  className="flex items-center justify-between border-b border-white/15 py-6 font-serif text-2xl font-light tracking-wide transition-colors hover:text-[#D8C2A8]"
+                  className={`relative inline-flex items-center gap-1 pb-1.5 text-[13px] font-medium transition-colors ${
+                    active ? "text-[#f3dcc4]" : "text-[#eadccd]/85 hover:text-[#f3dcc4]"
+                  }`}
                 >
-                  <span className="font-sans text-xs text-white/40">
-                    ۰{index + 1}
-                  </span>
-                  <span>{item.label}</span>
+                  {item.label}
+                  {item.caret && (
+                    <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  )}
+                  {active && <span className="absolute inset-x-0 -bottom-0.5 h-px bg-[#e2bf9f]" />}
                 </Link>
-              ))}
-            </nav>
+              );
+            })}
+          </nav>
 
-            <Link
-              href="/cart"
-              tabIndex={menuOpen ? 0 : -1}
-              onClick={closeMenu}
-              className="mt-8 flex items-center justify-between border-b border-white/15 py-5 text-xs tracking-[0.15em]"
-            >
-              <span>←</span>
-              <span>سبد خرید</span>
+          {/* چپ: جستجو و آیکون‌ها */}
+          <div className="flex items-center gap-5 text-[#f3dcc4]">
+            <label className="flex h-10 w-[210px] items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 text-[#eadccd] backdrop-blur-md focus-within:border-[#e2bf9f]/70">
+              <SearchIcon />
+              <input
+                type="search"
+                placeholder="جستجو در محصولات..."
+                className="w-full bg-transparent text-[12px] outline-none placeholder:text-[#eadccd]/70"
+              />
+            </label>
+            <Link href="/account" aria-label="علاقه‌مندی‌ها" className="transition hover:text-white"><HeartIcon /></Link>
+            <Link href="/login" aria-label="حساب کاربری" className="transition hover:text-white"><UserIcon /></Link>
+            <Link href="/cart" aria-label="سبد خرید" className="relative transition hover:text-white">
+              <CartIcon />
+              <span className="absolute -right-1.5 -top-1.5 grid h-3.5 w-3.5 place-items-center rounded-full bg-[#e2bf9f] text-[8px] font-bold text-[#2a1a12]">0</span>
             </Link>
+          </div>
+        </div>
+      </header>
 
-            <Link
-              href="/account"
-              tabIndex={menuOpen ? 0 : -1}
-              onClick={closeMenu}
-              className="mt-6 flex items-center justify-between border border-white/25 px-6 py-4 text-xs tracking-[0.15em] transition-colors hover:border-[#D8C2A8] hover:text-[#D8C2A8]"
-            >
-              <span>←</span>
-              <span>حساب کاربری</span>
-            </Link>
+      {/* موبایل */}
+      <div className="lg:hidden">
+        <div className="fixed inset-x-0 top-0 z-[70] flex h-[68px] items-center justify-between bg-[#1c110c]/90 px-5 text-[#f3dcc4] backdrop-blur-xl">
+          <button
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label={menuOpen ? "بستن منو" : "باز کردن منو"}
+            aria-expanded={menuOpen}
+            className="grid h-10 w-10 place-items-center"
+          >
+            <span className="flex w-6 flex-col gap-[6px]">
+              <span className={`h-[1.5px] bg-current transition ${menuOpen ? "translate-y-[3.75px] rotate-45" : ""}`} />
+              <span className={`h-[1.5px] bg-current transition ${menuOpen ? "-translate-y-[3.75px] -rotate-45" : "w-4"}`} />
+            </span>
+          </button>
+          <div className="scale-75"><Logo /></div>
+          <Link href="/cart" aria-label="سبد خرید"><CartIcon /></Link>
+        </div>
 
-            <Link
-              href="/login"
-              tabIndex={menuOpen ? 0 : -1}
-              onClick={closeMenu}
-              className="mt-4 flex items-center justify-between bg-[#F7F5F0] text-[#050505] px-6 py-4 text-xs tracking-[0.15em] font-medium transition-colors hover:bg-[#D8C2A8]"
-            >
-              <span>←</span>
-              <span>ورود به حساب</span>
-            </Link>
+        <div
+          aria-hidden={!menuOpen}
+          className={`fixed inset-0 z-[65] bg-[#1c110c] px-8 pb-10 pt-24 text-[#f3dcc4] transition-all duration-500 ${
+            menuOpen ? "visible opacity-100" : "invisible -translate-y-3 opacity-0"
+          }`}
+        >
+          <nav className="flex flex-col">
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                tabIndex={menuOpen ? 0 : -1}
+                onClick={() => setMenuOpen(false)}
+                className="border-b border-white/10 py-5 text-lg hover:text-[#e2bf9f]"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="mt-8 flex gap-3">
+            <Link href="/login" onClick={() => setMenuOpen(false)} className="btn-gold flex-1 rounded-full py-3 text-center text-sm font-medium">ورود / ثبت‌نام</Link>
+            <Link href="/account" onClick={() => setMenuOpen(false)} className="flex-1 rounded-full border border-white/25 py-3 text-center text-sm">حساب کاربری</Link>
           </div>
         </div>
       </div>

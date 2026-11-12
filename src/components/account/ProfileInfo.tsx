@@ -2,91 +2,72 @@
 
 import React, { useState } from 'react';
 import { EditProfileModal, UserProfileData } from './EditProfileModal';
+import { AccountCard, EditButton } from './ui';
 
-export const ProfileInfo: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [user, setUser] = useState<UserProfileData>({
-    firstName: 'الکس',
-    lastName: 'مورگان',
-    email: 'alex.morgan@example.com',
-    phone: '۰۹۱۲۱۲۳۴۵۶۷',
-    avatarUrl: undefined,
-  });
+interface ProfileInfoProps {
+  user: UserProfileData;
+  onSave: (data: UserProfileData) => void;
+  modalOpen: boolean;
+  setModalOpen: (open: boolean) => void;
+}
 
-  const handleSave = (newData: UserProfileData) => {
-    setUser(newData);
-  };
-
+function Field({ label, value, ltr, big }: { label: string; value: string; ltr?: boolean; big?: boolean }) {
   return (
-    <div className="text-right" dir="rtl">
-      {/* Edit Modal */}
-      <EditProfileModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        userData={user}
-        onSave={handleSave}
-      />
-
-      {/* Header Area */}
-      <div className="flex justify-between items-center mb-6 pb-2 border-b border-white/10">
-        <h2 className="font-serif text-lg font-light tracking-wide text-[#F7F5F0]">
-          اطلاعات پروفایل
-        </h2>
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="font-sans text-xs tracking-wider text-[#D8C2A8] hover:underline flex items-center gap-1.5"
-        >
-          <span>✎</span> ویرایش
-        </button>
-      </div>
-
-      {/* Avatar & Summary */}
-      <div className="flex items-center gap-6 mb-8">
-        <div className="w-16 h-16 rounded-full border border-white/20 bg-white/5 overflow-hidden flex items-center justify-center font-serif text-2xl text-[#D8C2A8] flex-none">
-          {user.avatarUrl ? (
-            <img src={user.avatarUrl} alt={user.firstName} className="w-full h-full object-cover" />
-          ) : (
-            user.firstName.charAt(0)
-          )}
-        </div>
-        <div>
-          <h3 className="font-serif text-xl font-light text-[#F7F5F0]">
-            {user.firstName} {user.lastName}
-          </h3>
-          <p className="font-sans text-xs text-[#8A857D] mt-0.5" dir="ltr">{user.email}</p>
-          <p className="font-mono text-xs text-[#6A655D] mt-0.5" dir="ltr">{user.phone}</p>
-        </div>
-      </div>
-
-      {/* Profile Details Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-white/10">
-        <div>
-          <span className="block font-sans text-xs tracking-wider text-[#6A655D] mb-1">
-            نام
-          </span>
-          <span className="font-sans text-xs text-[#F7F5F0]">{user.firstName}</span>
-        </div>
-        <div>
-          <span className="block font-sans text-xs tracking-wider text-[#6A655D] mb-1">
-            نام خانوادگی
-          </span>
-          <span className="font-sans text-xs text-[#F7F5F0]">{user.lastName}</span>
-        </div>
-        <div>
-          <span className="block font-sans text-xs tracking-wider text-[#6A655D] mb-1">
-            شماره همراه
-          </span>
-          <span className="font-mono text-xs text-[#F7F5F0]" dir="ltr">{user.phone}</span>
-        </div>
-        <div className="col-span-2 sm:col-span-3 pt-4 border-t border-white/5">
-          <span className="block font-sans text-xs tracking-wider text-[#6A655D] mb-1">
-            آدرس ایمیل
-          </span>
-          <span className="font-sans text-xs text-[#D8C2A8]" dir="ltr">{user.email}</span>
-        </div>
-      </div>
+    <div className="px-8 py-5">
+      <span className="block text-[13px] text-[#6b4f3e]">{label}</span>
+      <span
+        dir={ltr ? 'ltr' : undefined}
+        className={`mt-2 block text-right text-[#2a1a12] ${big ? 'text-[22px] font-semibold' : 'text-[15px] font-medium'}`}
+      >
+        {value}
+      </span>
     </div>
+  );
+}
+
+export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, onSave, modalOpen, setModalOpen }) => {
+  return (
+    <>
+      <EditProfileModal isOpen={modalOpen} onClose={() => setModalOpen(false)} userData={user} onSave={onSave} />
+
+      <AccountCard title="اطلاعات کاربری" action={<EditButton onClick={() => setModalOpen(true)}>ویرایش اطلاعات</EditButton>}>
+        <div className="flex items-stretch" dir="rtl">
+          {/* آواتار */}
+          <div className="grid w-[230px] flex-none place-items-center py-6">
+            <div className="relative h-[130px] w-[130px]">
+              <div className="grid h-full w-full place-items-center overflow-hidden rounded-full border border-[#e6c9ae] bg-gradient-to-br from-[#fbefe2] to-[#f0d9c3] shadow-[inset_0_2px_8px_rgba(255,255,255,0.8),0_8px_20px_rgba(120,78,48,0.15)]">
+                {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.firstName} className="h-full w-full object-cover" />
+                ) : (
+                  <svg viewBox="0 0 24 24" className="h-16 w-16 text-[#2a1a12]" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c1.5-4 4.5-5.5 8-5.5s6.5 1.5 8 5.5" />
+                  </svg>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                aria-label="تغییر تصویر"
+                className="absolute bottom-1 left-1 grid h-9 w-9 place-items-center rounded-full border-2 border-[#fbf1e6] bg-gradient-to-br from-[#f0c8a8] to-[#d9a47e] text-[#2a1a12] shadow-md transition hover:brightness-105"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* فیلدها */}
+          <div className="grid flex-1 grid-cols-2 grid-rows-2">
+            <div className="border-b border-l border-[#d9bfa6]/50"><Field label="نام و نام خانوادگی" value={`${user.firstName} ${user.lastName}`} big /></div>
+            <div className="border-b border-[#d9bfa6]/50"><Field label="شماره موبایل" value={user.phone} ltr big /></div>
+            <div className="border-l border-[#d9bfa6]/50"><Field label="آدرس پیش‌فرض" value={user.address ?? '—'} /></div>
+            <div><Field label="ایمیل" value={user.email} ltr /></div>
+          </div>
+        </div>
+      </AccountCard>
+    </>
   );
 };
 

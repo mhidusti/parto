@@ -1,206 +1,111 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { Logo } from "@/components/home/primitives";
+
+const columns = [
+  {
+    title: "دسترسی سریع",
+    links: [
+      { label: "صفحه اصلی", href: "/" },
+      { label: "محصولات", href: "/product" },
+      { label: "درباره ما", href: "/about" },
+      { label: "خدمات مشتریان", href: "/contact" },
+      { label: "تماس با ما", href: "/contact" },
+    ],
+  },
+  {
+    title: "خدمات مشتریان",
+    links: [
+      { label: "راهنمای خرید", href: "#" },
+      { label: "شرایط بازگشت کالا", href: "#" },
+      { label: "پیگیری سفارش", href: "/account" },
+      { label: "پشتیبانی مشتریان", href: "/contact" },
+    ],
+  },
+  {
+    title: "راهنمای خرید",
+    links: [
+      { label: "شیوه ثبت سفارش", href: "#" },
+      { label: "روش‌های پرداخت", href: "#" },
+      { label: "ارسال و تحویل", href: "#" },
+      { label: "ضمانت اصالت", href: "#" },
+    ],
+  },
+];
+
+function Social({ children, label }: { children: React.ReactNode; label: string }) {
+  return (
+    <a href="#" aria-label={label} className="grid h-8 w-8 place-items-center rounded-full border border-[#c8a07c]/40 text-[#e2bf9f] transition hover:bg-[#e2bf9f] hover:text-[#2a1a12]">
+      {children}
+    </a>
+  );
+}
 
 export function Footer() {
   return (
-    <footer className="w-full bg-[#0D0C0B] text-[#F3EFE6] select-none font-sans overflow-hidden">
-      {/* ------------------------------------------------------------- */}
-      {/* 1. بخش بالای فوتر (CTA Banner با تصویر پس‌زمینه) */}
-      {/* ------------------------------------------------------------- */}
-      <section className="relative w-full h-[260px] md:h-[320px] flex items-center justify-between px-6 md:px-16 lg:px-24 overflow-hidden border-b border-white/[0.08]">
-        {/* تصویر پس‌زمینه سنگی و تاریک */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <Image
-            src="/images/footer/footer.jpg"
-            alt="فضای پرتو"
-            fill
-            priority
-            className="object-cover object-center brightness-[0.3] contrast-[1.2]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0D0C0B]/90 via-transparent to-[#0D0C0B]/90" />
-        </div>
-
-        {/* عنوان بزرگ (در سمت راست برای زبان فارسی و کاملاً در یک راستا) */}
-        <div className="relative z-10 text-right">
-          <Link
-            href="/collection"
-            className="group inline-flex items-center gap-4 text-3xl md:text-5xl lg:text-6xl font-serif font-light tracking-tight text-[#F3EFE6] transition-colors duration-300 hover:text-[#D8CCB8]"
-          >
-            <span className="transform transition-transform duration-500 group-hover:-translate-x-3 text-3xl md:text-5xl font-sans font-extralight">
-              ←
-            </span>
-            <span>مشاهده مجموعه آثار</span>
-          </Link>
-        </div>
-
-        {/* لوگو و اسلوگان در سمت چپ بالای فوتر (بدون فاصله: پرتو) */}
-        <div className="relative z-10 hidden sm:flex flex-col items-start space-y-1">
-          <span className="font-serif tracking-[0.4em] text-lg md:text-xl text-[#F3EFE6] uppercase">
-            پرتو
-          </span>
-          <span className="text-[8px] md:text-[9px] font-mono tracking-[0.35em] text-[#A89379] uppercase">
-            OBJECTS OF LIGHT.
-          </span>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------- */}
-      {/* 2. بخش اصلی لینک‌ها و ناوبری فوتر */}
-      {/* ------------------------------------------------------------- */}
-      <div className="max-w-7xl mx-auto px-6 md:px-16 lg:px-20 pt-16 pb-12">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 md:gap-8 pb-16 border-b border-white/[0.08] text-right">
-          
-          {/* ستون اول: برند و لوگو (بدون فاصله: پرتو) */}
-          <div className="col-span-2 md:col-span-1 space-y-3">
-            <h2 className="font-serif tracking-[0.35em] text-xl text-[#F3EFE6] uppercase">
-              پرتو
-            </h2>
-            <p className="text-[9px] font-mono tracking-[0.3em] text-[#A89379] uppercase">
-              OBJECTS OF LIGHT.
-            </p>
-          </div>
-
-          {/* ستون دوم: فروشگاه */}
-          <div className="space-y-4">
-            <h3 className="text-[10px] font-mono tracking-[0.3em] text-[#A89379] uppercase">
-              فروشگاه
-            </h3>
-            <ul className="space-y-2.5 text-[12px] font-light tracking-[0.05em] text-[#D8CCB8]/80">
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  انگشترها
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  گردنبندها
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  گوشواره‌ها
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  دستبندها
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* ستون سوم: درباره ما */}
-          <div className="space-y-4">
-            <h3 className="text-[10px] font-mono tracking-[0.3em] text-[#A89379] uppercase">
-              درباره ما
-            </h3>
-            <ul className="space-y-2.5 text-[12px] font-light tracking-[0.05em] text-[#D8CCB8]/80">
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  داستان ما
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  هنر ساخت
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  پایداری
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  مجله
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* ستون چهارم: پشتیبانی */}
-          <div className="space-y-4">
-            <h3 className="text-[10px] font-mono tracking-[0.3em] text-[#A89379] uppercase">
-              پشتیبانی
-            </h3>
-            <ul className="space-y-2.5 text-[12px] font-light tracking-[0.05em] text-[#D8CCB8]/80">
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  روش‌های ارسال
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  بازگرداندن کالا
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  راهنمای سایز
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-                  سوالات متداول
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* ستون پنجم: شبکه‌های اجتماعی */}
-          <div className="space-y-4 col-span-2 md:col-span-1">
-            <h3 className="text-[10px] font-mono tracking-[0.3em] text-[#A89379] uppercase">
-              ما را دنبال کنید
-            </h3>
-            <div className="flex items-center justify-end md:justify-start gap-4 text-[#D8CCB8]/80">
-              {/* Instagram */}
-              <Link href="#" aria-label="Instagram" className="hover:text-[#F3EFE6] transition-colors">
-                <svg className="w-4 h-4 fill-none stroke-current stroke-[1.5]" viewBox="0 0 24 24">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                </svg>
-              </Link>
-              {/* Pinterest */}
-              <Link href="#" aria-label="Pinterest" className="hover:text-[#F3EFE6] transition-colors">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026l.032-.026z" />
-                </svg>
-              </Link>
-              {/* Facebook */}
-              <Link href="#" aria-label="Facebook" className="hover:text-[#F3EFE6] transition-colors">
-                <svg className="w-4 h-4 fill-none stroke-current stroke-[1.5]" viewBox="0 0 24 24">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                </svg>
-              </Link>
-              {/* X / Twitter */}
-              <Link href="#" aria-label="X" className="hover:text-[#F3EFE6] transition-colors">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </Link>
+    <footer
+      className="relative w-full text-[#eadccd]"
+      style={{ background: "radial-gradient(60% 80% at 85% 0%, rgba(120,78,52,0.35), transparent 60%), linear-gradient(180deg,#1c110c,#120a07)" }}
+    >
+      <div className="mx-auto max-w-[1360px] px-10 pb-8 pt-14">
+        <div className="grid grid-cols-5 gap-10 text-right">
+          {/* تماس با ما + لوگو (راست) */}
+          <div className="col-span-1">
+            <Logo className="!items-start" />
+            <div className="mt-6 flex gap-2.5">
+              <Social label="اینستاگرام">
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="4" y="4" width="16" height="16" rx="5" /><circle cx="12" cy="12" r="3.6" /><circle cx="17" cy="7" r=".8" fill="currentColor" /></svg>
+              </Social>
+              <Social label="تلگرام">
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"><path d="M21 4 3 11l5.5 2L10 19l3-3.5 4.5 3.5L21 4Z" /></svg>
+              </Social>
+              <Social label="واتساپ">
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"><path d="M4 20l1.3-4A8 8 0 1 1 8 18.7L4 20Z" /></svg>
+              </Social>
             </div>
           </div>
 
+          {columns.map((c) => (
+            <div key={c.title}>
+              <h3 className="mb-4 text-[14px] font-bold text-[#e8c9aa]">{c.title}</h3>
+              <ul className="space-y-2.5 text-[12px] text-[#eadccd]/80">
+                {c.links.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="transition hover:text-[#f3dcc4]">{l.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          <div>
+            <h3 className="mb-4 text-[14px] font-bold text-[#e8c9aa]">تماس با ما</h3>
+            <ul className="space-y-2.5 text-[12px] text-[#eadccd]/80">
+              <li dir="ltr" className="text-right">۰۲۱-۷۷۷۶۴۹۸۸</li>
+              <li dir="ltr" className="text-right">info@parto.com</li>
+              <li>تهران، ایران</li>
+            </ul>
+          </div>
         </div>
 
-        {/* ------------------------------------------------------------- */}
-        {/* 3. کپی‌رایت و لینک‌های پایین فوتر */}
-        {/* ------------------------------------------------------------- */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] font-sans text-[#A89379]/70 tracking-wider gap-4">
-          <div>
-            © {new Date().getFullYear()} پرتو. تمامی حقوق محفوظ است.
-          </div>
-          <div className="flex items-center gap-6">
-            <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-              قوانین و مقررات
-            </Link>
-            <Link href="#" className="hover:text-[#F3EFE6] transition-colors">
-              حریم خصوصی
-            </Link>
+        <div className="mt-12 flex items-center justify-between border-t border-white/10 pt-6 text-[11px] text-[#eadccd]/60">
+          <p>کلیه حقوق مادی و معنوی متعلق به پارتو محفوظ است © ۲۰۲۶</p>
+          <div className="flex items-center gap-3" dir="ltr">
+            <span className="grid h-9 w-9 place-items-center rounded-md bg-white/90 text-[9px] font-bold text-[#2a1a12]">نماد</span>
+            <span className="grid h-9 w-12 place-items-center rounded-md bg-white/90 text-[9px] font-bold text-[#2a1a12]">زرین‌پال</span>
+            <span className="relative h-8 w-12">
+              <span className="absolute left-1 top-1 h-6 w-6 rounded-full bg-[#d9442a]" />
+              <span className="absolute left-5 top-1 h-6 w-6 rounded-full bg-[#f2a33a]/90" />
+            </span>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              aria-label="بازگشت به بالا"
+              className="grid h-9 w-9 place-items-center rounded-full border border-[#e2bf9f]/70 text-[#e2bf9f] transition hover:bg-[#e2bf9f] hover:text-[#2a1a12]"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m6 15 6-6 6 6" /></svg>
+            </button>
           </div>
         </div>
       </div>

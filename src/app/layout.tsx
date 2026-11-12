@@ -22,8 +22,8 @@ const vazirmatn = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "PARTO — Objects of Light",
-  description: "A luxury jewelry brand featuring sculptural and cinematic designs.",
+  title: "PARTO — Jewelry for a lifetime",
+  description: "پارتو؛ جواهرات ماندگار و بی‌نظیر با زیبایی، اصالت و اعتماد.",
 };
 
 export default function RootLayout({

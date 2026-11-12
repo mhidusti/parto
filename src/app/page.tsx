@@ -1,37 +1,30 @@
 import { Header } from "@/components/layout/Header";
-import { Hero } from "@/components/sections/Hero/Hero";
-import { CraftContainer } from "@/components/sections/Craft/CraftContainer";
-import { EditorialCampaign } from "@/components/sections/EditorialCampaign";
-import { SuggestedProducts } from "@/components/sections/SuggestedProducts";
-import { CollectionSection } from "@/components/sections/Collection/CollectionSection";
-import { SavoirFaire } from "@/components/sections/SavoirFaire/SavoirFaire";
 import { Footer } from "@/components/layout/Footer";
+import { HeroSection } from "@/components/home/HeroSection";
+import { Categories, Brands } from "@/components/home/CategoriesBrands";
+import { NewestProducts, BestSellers } from "@/components/home/ProductSections";
+import { BrandStory, SpecialCollections } from "@/components/home/StoryCollections";
+import { Features, Newsletter } from "@/components/home/FeaturesNewsletter";
 
 export default function Home() {
   return (
-    <main className="relative w-full bg-[#080706] min-h-screen overflow-x-hidden">
-      {/* 1. Header */}
+    <main
+      className="relative w-full overflow-x-hidden text-[#3a2418]"
+      style={{
+        background:
+          "radial-gradient(70% 30% at 15% 12%, rgba(255,255,255,0.55), transparent 70%), radial-gradient(60% 25% at 90% 55%, rgba(255,255,255,0.4), transparent 70%), linear-gradient(180deg,#f0e1d3 0%,#f6ebe0 35%,#ecd9c7 70%,#f2e4d6 100%)",
+      }}
+    >
       <Header />
-
-      {/* 2. Hero Section */}
-      <Hero />
-
-      {/* 3. Craft & Material */}
-      <CraftContainer />
-
-      {/* 4. Editorial Campaign */}
-      <EditorialCampaign />
-
-
-      <SuggestedProducts />
-      {/* 5. Collection Section */}
-      <CollectionSection />
-
-   
-      {/* 6. Savoir-Faire */}
-      <SavoirFaire />
-
-      {/* 7. Footer */}
+      <HeroSection />
+      <Categories />
+      <Brands />
+      <NewestProducts />
+      <BestSellers />
+      <BrandStory />
+      <SpecialCollections />
+      <Features />
+      <Newsletter />
       <Footer />
     </main>
   );

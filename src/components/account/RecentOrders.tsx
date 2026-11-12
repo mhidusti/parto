@@ -1,138 +1,65 @@
-
 'use client';
 
 import React from 'react';
 import Link from 'next/link';
+import { Photo } from '@/components/home/primitives';
+import { AccountCard, ArrowLink } from './ui';
 
 export interface OrderItem {
   id: string;
   orderNumber: string;
   date: string;
   status: 'DELIVERED' | 'IN TRANSIT' | 'PROCESSING';
-  price: string;
-  itemCount: number;
   image: string;
 }
 
 const mockOrders: OrderItem[] = [
-  {
-    id: '1',
-    orderNumber: '#AU-10024',
-    date: '۲۳ فروردین ۱۴۰۵',
-    status: 'DELIVERED',
-    price: '۴,۸۵۰,۰۰۰ تومان',
-    itemCount: 1,
-    image: '/images/account/recentorder.jpg',
-  },
-  {
-    id: '2',
-    orderNumber: '#AU-10023',
-    date: '۸ فروردین ۱۴۰۵',
-    status: 'DELIVERED',
-    price: '۳,۲۰۰,۰۰۰ تومان',
-    itemCount: 1,
-    image: '/images/account/recentorder2.jpg',
-  },
-  {
-    id: '3',
-    orderNumber: '#AU-10021',
-    date: '۲۵ بهمن ۱۴۰۴',
-    status: 'IN TRANSIT',
-    price: '۵,۷۶۰,۰۰۰ تومان',
-    itemCount: 2,
-    image: '/images/account/recentorder3.jpg',
-  },
+  { id: '1', orderNumber: '#۳۵۶۷۸', date: '۱۴۰۴/۰۶/۲۱', status: 'DELIVERED', image: '/images/products/lumiere-ring/rose-gold-1.jpg' },
 ];
 
-export const RecentOrders: React.FC = () => {
-  const getStatusLabel = (status: OrderItem['status']) => {
-    switch (status) {
-      case 'DELIVERED':
-        return 'تحویل‌شده';
-      case 'IN TRANSIT':
-        return 'در حال ارسال';
-      case 'PROCESSING':
-        return 'در حال پردازش';
-    }
-  };
+const statusMap = {
+  DELIVERED: { label: 'تحویل داده شد', cls: 'bg-[#dfead7] text-[#3f6b3a] border-[#bcd3b0]', icon: true },
+  'IN TRANSIT': { label: 'در حال ارسال', cls: 'bg-[#f6e6c6] text-[#8a5a14] border-[#e6cc95]', icon: false },
+  PROCESSING: { label: 'در حال پردازش', cls: 'bg-[#f1e0d0] text-[#6b4f3e] border-[#d9bfa6]', icon: false },
+} as const;
 
-  return (
-    <div className="pt-8 text-right" dir="rtl">
-      {/* بخش عنوان */}
-      <div className="flex justify-between items-center mb-6 pb-2 border-b border-white/10">
-        <h2 className="font-serif text-lg font-light tracking-wide text-[#F7F5F0]">
-          سفارش‌های اخیر
-        </h2>
-
-        <Link
-          href="/account/orders"
-          className="font-sans text-xs tracking-wider text-[#8A857D] hover:text-[#D8C2A8] transition-colors"
-        >
-          مشاهده همه سفارش‌ها ←
-        </Link>
-      </div>
-
-      {/* لیست سفارش‌ها */}
-      <div className="space-y-4">
-        {mockOrders.map((order) => (
-          <Link
-            key={order.id}
-            href={`/account/orders/${order.id}`}
-            className="group bg-[#0B0B0A] border border-white/10 rounded-xl p-4 flex items-center justify-between hover:border-[#D8C2A8]/50 transition-all duration-300 block cursor-pointer"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-lg overflow-hidden border border-white/10 bg-white/5 flex-none">
-                <img
-                  src={order.image}
-                  alt={order.orderNumber}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-
-              <div>
-                <div
-                  className="font-mono text-xs text-[#F7F5F0] group-hover:text-[#D8C2A8] transition-colors"
-                  dir="ltr"
-                >
-                  {order.orderNumber}
-                </div>
-
-                <div className="font-sans text-[11px] text-[#6A655D] mt-0.5">
-                  {order.date}
-                </div>
-              </div>
+export const RecentOrders: React.FC = () => (
+  <AccountCard title="آخرین سفارش‌ها" action={<ArrowLink href="/account/orders">مشاهده همه سفارش‌ها</ArrowLink>}>
+    <div>
+      {mockOrders.map((o, i) => {
+        const st = statusMap[o.status];
+        return (
+          <div key={o.id} className={`flex items-center gap-6 px-8 py-6 ${i ? 'border-t border-[#d9bfa6]/50' : ''}`} dir="rtl">
+            <Photo
+              src={o.image}
+              gradient="linear-gradient(135deg,#f3e1cf,#d9b595)"
+              className="h-[88px] w-[154px] flex-none rounded-xl border border-white/70 shadow-[0_6px_16px_rgba(110,72,46,0.18)]"
+            />
+            <div className="flex-1">
+              <div className="text-[16px] font-semibold text-[#2a1a12]">سفارش شماره <span dir="ltr" className="inline-block">{o.orderNumber}</span></div>
+              <div className="mt-2 text-[13px] text-[#6b4f3e]">{o.date}</div>
             </div>
-
-            <div className="flex items-center gap-6">
-              <span
-                className={`text-[10px] font-sans px-2.5 py-1 rounded-full border ${
-                  order.status === 'DELIVERED'
-                    ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
-                    : 'border-amber-500/30 text-amber-400 bg-amber-500/10'
-                }`}
-              >
-                {getStatusLabel(order.status)}
-              </span>
-
-              <div className="text-right">
-                <div className="font-serif text-sm text-[#F7F5F0]">
-                  {order.price}
-                </div>
-
-                <div className="font-sans text-[11px] text-[#6A655D]">
-                  {order.itemCount} محصول
-                </div>
-              </div>
-
-              <span className="text-[#8A857D] group-hover:-translate-x-1 group-hover:text-[#D8C2A8] transition-all">
-                ←
-              </span>
-            </div>
-          </Link>
-        ))}
-      </div>
+            <span className={`inline-flex items-center gap-2 rounded-full border px-6 py-3 text-[13px] ${st.cls}`}>
+              {st.icon && (
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+                  <circle cx="12" cy="12" r="10" fill="currentColor" opacity=".9" />
+                  <path d="m7.5 12.3 3 3 6-6.3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+              {st.label}
+            </span>
+            <Link
+              href={`/account/orders/${o.id}`}
+              className="inline-flex items-center gap-2 rounded-full border border-[#c8a07c]/60 bg-white/30 px-6 py-3 text-[13px] text-[#4a2f20] transition hover:bg-[#f3dcc4]"
+            >
+              جزئیات سفارش
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+            </Link>
+          </div>
+        );
+      })}
     </div>
-  );
-};
+  </AccountCard>
+);
 
 export default RecentOrders;

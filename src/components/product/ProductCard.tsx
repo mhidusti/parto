@@ -96,7 +96,7 @@ export function ProductCardView({
 
   return (
     <article
-      className={`group relative flex flex-col overflow-hidden rounded-[34px] border border-white/60 shadow-[0_24px_60px_rgba(110,72,46,0.22)] ${className}`}
+      className={`group relative flex flex-col overflow-hidden rounded-[34px] border border-white/60 shadow-[0_24px_60px_rgba(110,72,46,0.22)] transition-all duration-700 ease-out hover:-translate-y-1.5 hover:shadow-[0_34px_70px_rgba(110,72,46,0.3)] ${className}`}
       style={{
         background:
           'linear-gradient(165deg,#e8cdb2 0%,#f3e1cd 45%,#d6b394 100%)',

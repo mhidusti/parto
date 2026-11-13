@@ -49,10 +49,10 @@ export function Footer() {
       className="relative w-full text-[#eadccd]"
       style={{ background: "radial-gradient(60% 80% at 85% 0%, rgba(120,78,52,0.35), transparent 60%), linear-gradient(180deg,#1c110c,#120a07)" }}
     >
-      <div className="mx-auto max-w-[1360px] px-10 pb-8 pt-14">
-        <div className="grid grid-cols-5 gap-10 text-right">
+      <div className="mx-auto max-w-[1360px] px-5 pb-8 pt-12 sm:px-10 sm:pt-14">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 text-right md:grid-cols-3 lg:grid-cols-5 lg:gap-10">
           {/* تماس با ما + لوگو (راست) */}
-          <div className="col-span-1">
+          <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <Logo className="!items-start" />
             <div className="mt-6 flex gap-2.5">
               <Social label="اینستاگرام">
@@ -90,7 +90,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex items-center justify-between border-t border-white/10 pt-6 text-[11px] text-[#eadccd]/60">
+        <div className="mt-10 flex flex-col items-center gap-5 border-t border-white/10 pt-6 text-center text-[11px] text-[#eadccd]/60 md:mt-12 md:flex-row md:justify-between md:text-right">
           <p>کلیه حقوق مادی و معنوی متعلق به پارتو محفوظ است © ۲۰۲۶</p>
           <div className="flex items-center gap-3" dir="ltr">
             <span className="grid h-9 w-9 place-items-center rounded-md bg-white/90 text-[9px] font-bold text-[#2a1a12]">نماد</span>
@@ -100,9 +100,13 @@ export function Footer() {
               <span className="absolute left-5 top-1 h-6 w-6 rounded-full bg-[#f2a33a]/90" />
             </span>
             <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              onClick={() => {
+                const l = (window as unknown as { __lenis?: { scrollTo: (t: number, o?: object) => void } }).__lenis;
+                if (l) l.scrollTo(0, { duration: 1.6 });
+                else window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
               aria-label="بازگشت به بالا"
-              className="grid h-9 w-9 place-items-center rounded-full border border-[#e2bf9f]/70 text-[#e2bf9f] transition hover:bg-[#e2bf9f] hover:text-[#2a1a12]"
+              className="grid h-9 w-9 place-items-center rounded-full border border-[#e2bf9f]/70 text-[#e2bf9f] transition duration-300 hover:-translate-y-1 hover:bg-[#e2bf9f] hover:text-[#2a1a12]"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m6 15 6-6 6 6" /></svg>
             </button>

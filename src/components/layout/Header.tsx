@@ -149,18 +149,20 @@ export function Header() {
 
         <div
           aria-hidden={!menuOpen}
+          data-lenis-prevent
           className={`fixed inset-0 z-[65] bg-[#1c110c] px-8 pb-10 pt-24 text-[#f3dcc4] transition-all duration-500 ${
             menuOpen ? "visible opacity-100" : "invisible -translate-y-3 opacity-0"
           }`}
         >
           <nav className="flex flex-col">
-            {navItems.map((item) => (
+            {navItems.map((item, idx) => (
               <Link
                 key={item.label}
                 href={item.href}
                 tabIndex={menuOpen ? 0 : -1}
                 onClick={() => setMenuOpen(false)}
-                className="border-b border-white/10 py-5 text-lg hover:text-[#e2bf9f]"
+                style={{ transitionDelay: menuOpen ? `${150 + idx * 70}ms` : "0ms" }}
+                className={`border-b border-white/10 py-5 text-lg transition-all duration-700 hover:text-[#e2bf9f] ${menuOpen ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0"}`}
               >
                 {item.label}
               </Link>

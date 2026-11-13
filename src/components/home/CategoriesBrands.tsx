@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { Photo, RoundArrow, DiamondIcon, Chevron } from "./primitives";
+import { Photo, DiamondIcon, Chevron } from "./primitives";
+import { Reveal } from "@/components/ui/Reveal";
 
 const categories = [
   { label: "ساعت‌ها", en: "Watches", img: "/images/categories/watches.jpg", href: "/product" },
@@ -22,23 +23,24 @@ export function Categories() {
         style={{ background: "radial-gradient(50% 55% at 50% 50%, rgba(255,246,236,0.9), transparent 72%)" }}
       />
 
-      <div className="mx-auto flex max-w-[640px] flex-col items-center text-center">
+      <Reveal className="mx-auto flex max-w-[640px] flex-col items-center text-center">
         <span className="font-serif text-[13px] italic tracking-[0.28em] text-[#b3865f]">COLLECTIONS</span>
-        <h2 id="cat-title" className="mt-1 text-[30px] font-bold text-[#2a1a12]">دسته‌بندی محصولات</h2>
+        <h2 id="cat-title" className="mt-1 text-[24px] font-bold text-[#2a1a12] sm:text-[30px]">دسته‌بندی محصولات</h2>
         <p className="mt-1.5 text-[13px] text-[#7a5a46]">انتخابی خاص برای سلیقه‌های خاص</p>
         <div aria-hidden className="mt-4 flex w-full max-w-[320px] items-center gap-3 text-[#b3865f]">
           <span className="h-px flex-1 bg-gradient-to-l from-[#b3865f]/70 to-transparent" />
           <DiamondIcon className="h-[16px] w-[20px]" />
           <span className="h-px flex-1 bg-gradient-to-r from-[#b3865f]/70 to-transparent" />
         </div>
-      </div>
+      </Reveal>
 
-      <ul className="no-scrollbar mt-12 flex snap-x gap-7 overflow-x-auto px-2 pb-12 pt-3 lg:grid lg:grid-cols-5 lg:gap-8 lg:overflow-visible lg:px-0">
-        {categories.map((c) => (
+      <ul className="no-scrollbar -mx-6 mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto px-8 pb-12 pt-3 scroll-px-8 sm:mt-12 lg:mx-0 lg:grid lg:grid-cols-5 lg:gap-8 lg:overflow-visible lg:px-0">
+        {categories.map((c, idx) => (
           <li
             key={c.label}
-            className="w-[190px] shrink-0 snap-center transition-transform duration-500 lg:w-auto"
+            className="w-[168px] shrink-0 snap-center sm:w-[190px] lg:w-auto"
           >
+            <Reveal delay={idx * 100} variant="up">
             <Link href={c.href} className="group relative block" aria-label={`مشاهده ${c.label}`}>
               {/* قاب قوسی بیرونی که با هاور باز می‌شود */}
               <span
@@ -69,6 +71,7 @@ export function Categories() {
                 </span>
               </span>
             </Link>
+            </Reveal>
           </li>
         ))}
       </ul>
@@ -86,36 +89,45 @@ const brands = [
 ];
 
 export function Brands() {
+  /* دو بار تکرار برای حلقه بی‌پایان مارکی */
+  const loop = [...brands, ...brands];
   return (
     <section className="relative mt-4">
       <div
-        className="band-wave relative h-[340px] w-full"
+        className="band-wave relative h-[290px] w-full sm:h-[340px]"
         style={{
           background:
             "radial-gradient(70% 120% at 80% 0%, rgba(160,110,78,0.45), transparent 60%), radial-gradient(60% 100% at 10% 100%, rgba(120,78,52,0.5), transparent 65%), linear-gradient(120deg,#1a0f0a 0%,#33201a 45%,#1a0f0a 100%)",
         }}
       />
-      <div className="absolute inset-0 mx-auto flex max-w-[1360px] flex-col justify-center px-12">
-        <div className="text-right">
-          <h2 className="text-[24px] font-bold text-[#e8c9aa]">برندهای معتبر</h2>
+      <div className="absolute inset-0 mx-auto flex max-w-[1360px] flex-col justify-center px-5 sm:px-12">
+        <Reveal className="text-right">
+          <h2 className="text-[21px] font-bold text-[#e8c9aa] sm:text-[24px]">برندهای معتبر</h2>
           <p className="mt-1 text-[12px] text-[#d8c2ac]/85">برترین برندهای جهانی در پارتو</p>
-        </div>
+        </Reveal>
 
-        <div className="mt-8 flex items-center gap-5">
-          <RoundArrow dir="right" label="قبلی" />
-          <div className="flex flex-1 items-center justify-between rounded-full border border-white/10 bg-white/[0.03] px-4 py-5">
-            {brands.map((b) => (
-              <div
-                key={b.name}
-                dir="ltr"
-                className={`flex h-16 w-[170px] items-center justify-center rounded-full text-center text-[#f0dcc7]/90 ${b.cls}`}
-              >
-                {b.name}
-              </div>
-            ))}
+        <Reveal variant="fade" delay={150} className="mt-6 sm:mt-8">
+          <div
+            dir="ltr"
+            className="relative overflow-hidden rounded-full border border-white/10 bg-white/[0.03] py-3 sm:py-4"
+            style={{
+              WebkitMaskImage: "linear-gradient(to right, transparent, #000 10%, #000 90%, transparent)",
+              maskImage: "linear-gradient(to right, transparent, #000 10%, #000 90%, transparent)",
+            }}
+          >
+            <div className="anim-marquee flex w-max items-center">
+              {loop.map((b, n) => (
+                <div
+                  key={`${b.name}-${n}`}
+                  aria-hidden={n >= brands.length}
+                  className={`flex h-14 w-[150px] shrink-0 items-center justify-center text-center text-[#f0dcc7]/90 transition duration-500 hover:scale-110 hover:text-white sm:h-16 sm:w-[190px] ${b.cls}`}
+                >
+                  {b.name}
+                </div>
+              ))}
+            </div>
           </div>
-          <RoundArrow dir="left" label="بعدی" />
-        </div>
+        </Reveal>
       </div>
     </section>
   );

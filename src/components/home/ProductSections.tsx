@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import { RoundArrow, SectionHeading } from "./primitives";
 import { ProductCard } from "@/components/product/ProductCard";
+import { Reveal } from "@/components/ui/Reveal";
 import { allProducts } from "@/data/products";
 
 /* جدیدترین محصولات: محصولات isNew، و در صورت کمبود، بقیه محصولات */
@@ -19,11 +20,15 @@ const bestSellers = [
 
 export function NewestProducts() {
   return (
-    <section className="mx-auto mt-14 max-w-[1360px] px-5 sm:px-10">
-      <SectionHeading title="جدیدترین محصولات" subtitle="جدیدترین انتخاب‌ها برای شما" href="/product" />
+    <section className="mx-auto mt-12 max-w-[1360px] px-5 sm:mt-14 sm:px-10">
+      <Reveal>
+        <SectionHeading title="جدیدترین محصولات" subtitle="جدیدترین انتخاب‌ها برای شما" href="/product" />
+      </Reveal>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {newest.map((p) => (
-          <ProductCard key={p.id} product={p} badge={p.isNew ? "جدید" : null} />
+        {newest.map((p, i) => (
+          <Reveal key={p.id} delay={i * 110} className="h-full">
+            <ProductCard product={p} badge={p.isNew ? "جدید" : null} className="h-full" />
+          </Reveal>
         ))}
       </div>
     </section>
@@ -34,7 +39,7 @@ export function BestSellers() {
   const ref = useRef<HTMLDivElement>(null);
   const scroll = (d: number) => ref.current?.scrollBy({ left: d * 340, behavior: "smooth" });
   return (
-    <section className="relative mt-14 py-24">
+    <section className="relative mt-12 py-16 sm:mt-14 sm:py-24">
       <div
         className="band-wave absolute inset-0"
         style={{
@@ -43,16 +48,23 @@ export function BestSellers() {
         }}
       />
       <div className="relative mx-auto max-w-[1360px] px-5 sm:px-10">
-        <SectionHeading title="پرفروش‌ترین‌ها" subtitle="انتخاب محبوب مشتریان ما" href="/product" dark />
-        <div className="flex items-center gap-4">
-          <RoundArrow dir="right" label="قبلی" onClick={() => scroll(1)} />
-          <div ref={ref} className="no-scrollbar flex flex-1 gap-6 overflow-x-auto py-4">
-            {bestSellers.map((p) => (
-              <ProductCard key={p.id} product={p} badge="پرفروش‌ترین" className="w-[310px] shrink-0" />
-            ))}
+        <Reveal>
+          <SectionHeading title="پرفروش‌ترین‌ها" subtitle="انتخاب محبوب مشتریان ما" href="/product" dark />
+        </Reveal>
+        <Reveal variant="fade" delay={120}>
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block"><RoundArrow dir="right" label="قبلی" onClick={() => scroll(1)} /></div>
+            <div
+              ref={ref}
+              className="no-scrollbar -mx-5 flex flex-1 snap-x snap-mandatory gap-5 overflow-x-auto px-5 py-4 sm:mx-0 sm:gap-6 sm:px-0"
+            >
+              {bestSellers.map((p) => (
+                <ProductCard key={p.id} product={p} badge="پرفروش‌ترین" className="w-[270px] shrink-0 snap-center sm:w-[310px]" />
+              ))}
+            </div>
+            <div className="hidden md:block"><RoundArrow dir="left" label="بعدی" onClick={() => scroll(-1)} /></div>
           </div>
-          <RoundArrow dir="left" label="بعدی" onClick={() => scroll(-1)} />
-        </div>
+        </Reveal>
       </div>
     </section>
   );

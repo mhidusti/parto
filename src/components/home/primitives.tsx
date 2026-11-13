@@ -118,18 +118,18 @@ export function SectionHeading({
   dark?: boolean;
 }) {
   return (
-    <div className="mb-6 flex items-end justify-between">
+    <div className="mb-6 flex items-end justify-between gap-4">
       <div>
-        <h2 className={`text-[26px] font-bold leading-tight ${dark ? "text-[#e8c9aa]" : "text-[#2a1a12]"}`}>{title}</h2>
+        <h2 className={`text-[22px] font-bold leading-tight sm:text-[26px] ${dark ? "text-[#e8c9aa]" : "text-[#2a1a12]"}`}>{title}</h2>
         {subtitle && <p className={`mt-1 text-[12px] ${dark ? "text-[#d8c2ac]/80" : "text-[#7a5a46]"}`}>{subtitle}</p>}
       </div>
       {href && (
         <Link
           href={href}
-          className={`inline-flex items-center gap-1.5 text-[12px] font-medium transition hover:opacity-80 ${dark ? "text-[#e8c9aa]" : "text-[#3a2418]"}`}
+          className={`group inline-flex shrink-0 items-center gap-1.5 text-[12px] font-medium transition hover:opacity-80 ${dark ? "text-[#e8c9aa]" : "text-[#3a2418]"}`}
         >
           مشاهده همه
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-3.5 w-3.5 transition duration-300 group-hover:-translate-x-1" />
         </Link>
       )}
     </div>

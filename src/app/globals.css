@@ -210,3 +210,78 @@ html {
     mask-repeat: no-repeat;
   }
 }
+
+/* ───────── اسکرول نرم (Lenis) ───────── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* ───────── موشن و انیمیشن ───────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translate3d(0, 22px, 0); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes kenburns {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.12) translate3d(-1.5%, -1%, 0); }
+}
+@keyframes float-y {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50% { opacity: 0.95; transform: scale(1.15); }
+}
+@keyframes marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes progress-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes sweep {
+  from { transform: translateX(-130%) skewX(-18deg); }
+  to { transform: translateX(260%) skewX(-18deg); }
+}
+@keyframes soft-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 160, 124, 0.45); }
+  50% { box-shadow: 0 0 0 12px rgba(200, 160, 124, 0); }
+}
+
+@layer utilities {
+  .anim-up { animation: fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .anim-kenburns { animation: kenburns 14s ease-in-out infinite alternate; }
+  .anim-float { animation: float-y 6s ease-in-out infinite; }
+  .anim-twinkle { animation: twinkle 3.6s ease-in-out infinite; }
+  .anim-marquee { animation: marquee-x 38s linear infinite; }
+  .anim-marquee:hover { animation-play-state: paused; }
+  .anim-progress { animation: progress-x linear both; transform-origin: right; }
+  .anim-pulse { animation: soft-pulse 2.6s ease-out infinite; }
+
+  /* بازتاب نور روی دکمه‌های طلایی */
+  .btn-gold { position: relative; overflow: hidden; isolation: isolate; transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s, box-shadow 0.4s; }
+  .btn-gold::after {
+    content: ""; position: absolute; inset: 0 auto 0 0; width: 40%; z-index: -1;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    transform: translateX(-130%) skewX(-18deg); pointer-events: none;
+  }
+  .btn-gold:hover::after { animation: sweep 0.9s ease; }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(120, 78, 48, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.55); }
+  .btn-gold:active { transform: translateY(0); }
+
+  /* کارت‌ها نرم‌تر بالا بیایند */
+  .lift { transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease; }
+  .lift:hover { transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

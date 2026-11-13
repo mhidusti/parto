@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Photo, ArrowLeft } from "./primitives";
+import { Reveal } from "@/components/ui/Reveal";
 
 type Banner = {
   title: string;
@@ -18,7 +19,7 @@ function PromoCard({ b }: { b: Banner }) {
   const dark = b.tone === "dark";
   return (
     <article
-      className={`group relative isolate min-h-[190px] overflow-hidden rounded-[28px] border shadow-[0_16px_36px_rgba(70,40,24,0.25)] ${
+      className={`group lift relative isolate min-h-[190px] overflow-hidden rounded-[24px] border shadow-[0_16px_36px_rgba(70,40,24,0.25)] hover:shadow-[0_24px_48px_rgba(70,40,24,0.32)] sm:rounded-[28px] ${
         dark ? "border-[#e8c9aa]/20 text-[#fbeee2]" : "border-white/70 text-[#2a1a12]"
       }`}
     >
@@ -26,7 +27,7 @@ function PromoCard({ b }: { b: Banner }) {
       <Photo
         src={b.img}
         gradient={b.gradient}
-        className="absolute inset-y-0 left-0 -z-10 w-[72%] transition duration-700 group-hover:scale-105"
+        className="absolute inset-y-0 left-0 -z-10 w-[72%] transition duration-[1200ms] ease-out group-hover:scale-105 max-sm:w-full max-sm:opacity-40"
         style={{
           backgroundPosition: b.imgPos ?? "center",
           WebkitMaskImage: "linear-gradient(to right,#000 55%,transparent)",
@@ -42,14 +43,14 @@ function PromoCard({ b }: { b: Banner }) {
             : "linear-gradient(120deg,#f1d9c3,#e7c4a5)",
         }}
       />
-      <div className="relative flex h-full min-h-[190px] flex-col items-start justify-center px-8 py-7 text-right sm:w-[56%]">
-        <h3 className="text-[24px] font-bold leading-tight">{b.title}</h3>
+      <div className="relative flex h-full min-h-[190px] flex-col items-start justify-center px-6 py-7 text-right sm:w-[56%] sm:px-8">
+        <h3 className="text-[21px] font-bold leading-tight sm:text-[24px]">{b.title}</h3>
         <p className={`mt-2 text-[13px] ${dark ? "text-[#e6d2bf]" : "text-[#5a3a28]"}`}>{b.sub}</p>
         <div className="mt-5 flex items-center gap-3">
           {b.extra}
           <Link
             href={b.href}
-            className="btn-gold inline-flex h-10 items-center gap-2 rounded-full px-6 text-[13px] font-bold transition hover:-translate-y-0.5"
+            className="btn-gold inline-flex h-10 items-center gap-2 rounded-full px-5 text-[13px] font-bold sm:px-6"
           >
             {b.cta}
             <ArrowLeft className="h-3.5 w-3.5" />
@@ -62,10 +63,12 @@ function PromoCard({ b }: { b: Banner }) {
 
 function Grid({ items, label }: { items: Banner[]; label: string }) {
   return (
-    <section aria-label={label} className="mx-auto mt-10 max-w-[1360px] px-6">
+    <section aria-label={label} className="mx-auto mt-8 max-w-[1360px] px-5 sm:mt-10 sm:px-10">
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        {items.map((b) => (
-          <PromoCard key={b.title} b={b} />
+        {items.map((b, i) => (
+          <Reveal key={b.title} delay={i * 130} variant={i % 2 ? "left" : "right"}>
+            <PromoCard b={b} />
+          </Reveal>
         ))}
       </div>
     </section>

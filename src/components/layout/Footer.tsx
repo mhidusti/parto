@@ -11,7 +11,7 @@ const columns = [
       { label: "صفحه اصلی", href: "/" },
       { label: "محصولات", href: "/product" },
       { label: "درباره ما", href: "/about" },
-      { label: "خدمات مشتریان", href: "/contact" },
+      { label: "خدمات مشتریان", href: "/customer-services" },
       { label: "تماس با ما", href: "/contact" },
     ],
   },
@@ -21,7 +21,7 @@ const columns = [
       { label: "راهنمای خرید", href: "#" },
       { label: "شرایط بازگشت کالا", href: "#" },
       { label: "پیگیری سفارش", href: "/account" },
-      { label: "پشتیبانی مشتریان", href: "/contact" },
+      { label: "پشتیبانی مشتریان", href: "/customer-services#support" },
     ],
   },
   {

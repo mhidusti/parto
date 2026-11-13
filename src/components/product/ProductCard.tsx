@@ -70,25 +70,29 @@ function StarIcon() {
   );
 }
 
-export interface ProductCardProps {
-  product: Product;
-  /** برچسب بالای کارت؛ پیش‌فرض: «پرفروش‌ترین» برای محصولات پرفروش */
+export interface ProductCardViewProps {
+  name: string;
+  subTitle?: string;
+  href: string;
+  images: string[];
+  price: string;
+  oldPrice?: string | null;
+  discount?: string | null;
+  rating?: number;
+  reviewsCount?: number;
   badge?: string | null;
+  added?: boolean;
+  onAddToCart?: (e: React.MouseEvent) => void;
   className?: string;
 }
 
-export function ProductCard({ product, badge, className = '' }: ProductCardProps) {
+/* کارت محصول (نمای خالص) — هم برای ProductCard و هم برای کاتالوگ انگشترها */
+export function ProductCardView({
+  name, subTitle, href, images, price, oldPrice, discount, rating, reviewsCount,
+  badge: label, added, onAddToCart, className = '',
+}: ProductCardViewProps) {
   const [wished, setWished] = useState(false);
   const [active, setActive] = useState(0);
-
-  const images = useMemo(
-    () => (product.materials[0]?.images ?? []).slice(0, 3),
-    [product.materials],
-  );
-
-  const { price, oldPrice, discount } = getPricing(product);
-  const label = badge === undefined ? (product.isBestSeller ? 'پرفروش‌ترین' : null) : badge;
-  const href = `/product/${product.slug}`;
 
   return (
     <article
@@ -100,12 +104,12 @@ export function ProductCard({ product, badge, className = '' }: ProductCardProps
     >
       {/* ------------------------------ تصویر ------------------------------ */}
       <div className="relative aspect-[1/1] w-full overflow-hidden">
-        <Link href={href} aria-label={product.name} className="absolute inset-0 block">
+        <Link href={href} aria-label={name} className="absolute inset-0 block">
           {images[active] && (
             <Image
               key={images[active]}
               src={images[active]}
-              alt={product.name}
+              alt={name}
               fill
               sizes="(max-width: 768px) 90vw, 320px"
               className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
@@ -155,16 +159,18 @@ export function ProductCard({ product, badge, className = '' }: ProductCardProps
       {/* ------------------------------ اطلاعات ------------------------------ */}
       <div className="relative z-10 -mt-10 mx-3 mb-3 rounded-[28px] bg-gradient-to-b from-[#fbf1e6] to-[#f4e3d2] p-4 shadow-[0_-8px_24px_rgba(110,72,46,0.12)] ring-1 ring-white/70">
         <Link href={href} className="block">
-          <h3 className="text-[16px] font-bold leading-snug text-[#24140d]">{product.name}</h3>
+          <h3 className="text-[16px] font-bold leading-snug text-[#24140d]">{name}</h3>
         </Link>
-        <p className="mt-1 line-clamp-1 text-[12.5px] text-[#8a6e5c]">{product.subTitle}</p>
+        {subTitle && <p className="mt-1 line-clamp-1 text-[12.5px] text-[#8a6e5c]">{subTitle}</p>}
 
         <div className="mt-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[12.5px] text-[#5a3a28]">
-            <StarIcon />
-            <span className="font-medium">{faNum(product.rating)}</span>
-            <span className="text-[#8a6e5c]">({faNum(product.reviewsCount)} نظر)</span>
-          </div>
+          {rating !== undefined ? (
+            <div className="flex items-center gap-1.5 text-[12.5px] text-[#5a3a28]">
+              <StarIcon />
+              <span className="font-medium">{faNum(rating)}</span>
+              {reviewsCount !== undefined && <span className="text-[#8a6e5c]">({faNum(reviewsCount)} نظر)</span>}
+            </div>
+          ) : <span />}
 
           {oldPrice && (
             <div className="flex items-center gap-2">
@@ -181,31 +187,59 @@ export function ProductCard({ product, badge, className = '' }: ProductCardProps
           <span className="text-[13px] text-[#6a4a38]">تومان</span>
         </div>
 
-        <div className="mt-3.5 flex items-center gap-2.5">
+        <div className="mt-3.5 flex items-center gap-2">
           <button
             type="button"
-            className="flex h-12 flex-1 items-center justify-center gap-2.5 rounded-full bg-gradient-to-l from-[#4a2e20] to-[#24140d] text-[14px] font-medium text-[#f6e6d3] shadow-[0_8px_18px_rgba(36,20,13,0.3)] transition hover:brightness-125"
+            onClick={onAddToCart}
+            className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-l from-[#4a2e20] to-[#24140d] px-2 text-[13px] font-medium text-[#f6e6d3] shadow-[0_8px_18px_rgba(36,20,13,0.3)] transition hover:brightness-125"
           >
             <CartIcon />
-            افزودن به سبد خرید
+            {added ? '✓ افزوده شد' : 'افزودن به سبد خرید'}
           </button>
           <button
             type="button"
             aria-label="اشتراک‌گذاری"
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[#d9b99a] bg-white/40 text-[#3a2418] transition hover:bg-white"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#d9b99a] bg-white/40 text-[#3a2418] transition hover:bg-white"
           >
             <ShareIcon />
           </button>
           <button
             type="button"
             aria-label="مقایسه"
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[#d9b99a] bg-white/40 text-[#3a2418] transition hover:bg-white"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#d9b99a] bg-white/40 text-[#3a2418] transition hover:bg-white"
           >
             <CompareIcon />
           </button>
         </div>
       </div>
     </article>
+  );
+}
+
+export interface ProductCardProps {
+  product: Product;
+  /** برچسب بالای کارت؛ پیش‌فرض: «پرفروش‌ترین» برای محصولات پرفروش */
+  badge?: string | null;
+  className?: string;
+}
+
+export function ProductCard({ product, badge, className = '' }: ProductCardProps) {
+  const images = useMemo(() => (product.materials[0]?.images ?? []).slice(0, 3), [product.materials]);
+  const { price, oldPrice, discount } = getPricing(product);
+  return (
+    <ProductCardView
+      name={product.name}
+      subTitle={product.subTitle}
+      href={`/product/${product.slug}`}
+      images={images}
+      price={price}
+      oldPrice={oldPrice}
+      discount={discount}
+      rating={product.rating}
+      reviewsCount={product.reviewsCount}
+      badge={badge === undefined ? (product.isBestSeller ? 'پرفروش‌ترین' : null) : badge}
+      className={className}
+    />
   );
 }
 

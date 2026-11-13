@@ -9,7 +9,7 @@ const navItems = [
   { label: "خانه", href: "/" },
   { label: "محصولات", href: "/product" },
   { label: "درباره ما", href: "/about" },
-  { label: "خدمات مشتریان", href: "/contact", caret: true },
+  { label: "خدمات مشتریان", href: "/customer-services", caret: true },
   { label: "وبلاگ", href: "/collection" },
   { label: "تماس با ما", href: "/contact" },
 ];
@@ -87,7 +87,7 @@ export function Header() {
           {/* ناوبری */}
           <nav className="flex items-center gap-9">
             {navItems.map((item) => {
-              const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href) && item.label !== "خدمات مشتریان";
+              const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.label}

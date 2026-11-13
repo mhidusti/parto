@@ -12,7 +12,7 @@ export default function ProductPage() {
     <main className="min-h-screen w-full overflow-x-hidden bg-[#f6ebe0]">
       <Header />
       <ProductHero />
-     <ProductCatalog />
+      <ProductCatalog />
       <Footer />
     </main>
   );

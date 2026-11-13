@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Photo, HeartButton, GoldButton, ArrowLeft, Chevron } from '@/components/home/primitives';
+import { Photo, GoldButton, ArrowLeft, Chevron } from '@/components/home/primitives';
+import { ProductCardView } from '@/components/product/ProductCard';
 import {
   ringsCatalog,
   type GoldType,
@@ -193,177 +194,26 @@ export const ProductCatalog = () => {
               </div>
             </div>
 
-           
-<div className={view === 'grid' ? 'grid grid-cols-3 gap-6 max-lg:grid-cols-2 max-sm:grid-cols-1' : 'flex flex-col gap-5'}>
-  {visible.map((r: RingItem) => {
-    const href = r.slug ? `/product/${r.slug}` : '/product';
-    const isAdded = added.has(r.id);
-
-    return (
-      <article
-        key={r.id}
-        className={`group relative overflow-hidden rounded-[32px] border border-[#fff4e8]/80 bg-[#f9eee4] shadow-[0_12px_35px_rgba(74,43,25,0.13)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(74,43,25,0.2)] ${
-          view === 'list'
-            ? 'flex items-stretch gap-0 max-sm:flex-col'
-            : ''
-        }`}
-      >
-        {/* تصویر محصول */}
-        <div
-          className={`relative overflow-hidden bg-[#c9a187] ${
-            view === 'list'
-              ? 'h-[250px] w-[300px] shrink-0 max-sm:w-full'
-              : 'h-[270px] w-full'
-          }`}
-        >
-          <Link href={href} className="absolute inset-0 z-[1]">
-            <Photo
-              src={r.image}
-              gradient="radial-gradient(80% 80% at 50% 40%,#fff4ea,#e9cfb7 75%)"
-              className="h-full w-full rounded-none transition-transform duration-700 group-hover:scale-105"
-            />
-          </Link>
-
-          {/* لایه نور تصویر */}
-          <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-[#3a2418]/15 via-transparent to-white/10" />
-
-          {/* برچسب محصول */}
-          <div className="absolute right-5 top-5 z-[3] flex items-center gap-2 rounded-full border border-[#e8c9a9]/60 bg-gradient-to-l from-[#28180f] to-[#543522] px-4 py-2 text-[11px] font-semibold text-[#f7e5d2] shadow-lg">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-[#e9bd8c]">
-              <path d="M12 2 14.8 9.2 22 12l-7.2 2.8L12 22l-2.8-7.2L2 12l7.2-2.8L12 2Z" />
-            </svg>
-            کالکشن پرتو
-          </div>
-
-          {/* علاقه‌مندی */}
-          <div className="absolute left-5 top-5 z-[4]">
-            <HeartButton className="!h-12 !w-12 !rounded-full border border-[#f4dfcc]/80 !bg-[#fff2e6]/75 shadow-[0_5px_18px_rgba(60,35,20,0.12)] backdrop-blur-md" />
-          </div>
-
-          {/* اطلاعات تصویری پایین */}
-          <div className="pointer-events-none absolute bottom-5 left-0 right-0 z-[2] flex justify-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full border border-white bg-white shadow-md" />
-            <span className="h-2 w-2 rounded-full border border-white/80 bg-white/40" />
-            <span className="h-2 w-2 rounded-full border border-white/80 bg-white/40" />
-          </div>
-        </div>
-
-        {/* پنل اطلاعات محصول */}
-        <div
-          className={`relative flex flex-col justify-between gap-5 bg-gradient-to-br from-[#fff7ef] via-[#f8e9dc] to-[#f3dfce] p-5 ${
-            view === 'list' ? 'min-w-0 flex-1' : 'min-h-[190px]'
-          }`}
-        >
-          {/* نام و قیمت */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1 text-right">
-              <Link href={href}>
-                <h3 className="text-[16px] font-bold leading-8 text-[#2a1a12] transition-colors group-hover:text-[#966744] max-sm:text-[14px]">
-                  {r.name}
-                </h3>
-              </Link>
-
-              <p className="mt-1 text-[11px] text-[#92745f]">
-                زیبایی ماندگار، انتخابی برای لحظه‌های خاص
-              </p>
+            <div className={view === 'grid' ? 'grid grid-cols-3 gap-6' : 'flex flex-col gap-6'}>
+              {visible.map((r: RingItem) => (
+                <ProductCardView
+                  key={r.id}
+                  name={r.name}
+                  subTitle={r.subTitle}
+                  href={r.slug ? `/product/${r.slug}` : '/product'}
+                  images={r.images ?? [r.image]}
+                  price={fa(r.rawPrice).replace(/٬/g, ',')}
+                  oldPrice={r.oldPrice ? fa(r.oldPrice).replace(/٬/g, ',') : null}
+                  discount={r.oldPrice ? `${fa(Math.round((1 - r.rawPrice / r.oldPrice) * 100))}٪` : null}
+                  rating={r.rating}
+                  reviewsCount={r.reviewsCount}
+                  badge={r.badge ?? null}
+                  added={added.has(r.id)}
+                  onAddToCart={(e) => addToCart(e, r.id)}
+                  className={view === 'list' ? 'max-w-[420px]' : ''}
+                />
+              ))}
             </div>
-
-            {/* قیمت */}
-            <div className="shrink-0 text-left">
-              <p className="text-[19px] font-black tracking-tight text-[#2a1a12] max-sm:text-[16px]">
-                {fa(r.rawPrice)}
-              </p>
-              <span className="text-[10px] text-[#80634f]">
-                تومان
-              </span>
-            </div>
-          </div>
-
-          {/* خط تزئینی */}
-          <div className="h-px w-full bg-gradient-to-l from-transparent via-[#c69b77]/50 to-transparent" />
-
-          {/* دکمه‌ها */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              aria-label="مقایسه محصول"
-              className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[#d6b89b] bg-white/45 text-[#563824] shadow-[0_3px_10px_rgba(70,40,20,0.06)] transition-all hover:bg-[#3a2418] hover:text-[#f5dfc8]"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 3v18M5 7h14M7 7l-4 8h8L7 7Zm10 0-4 8h8l-4-8ZM5 21h14" />
-              </svg>
-            </button>
-
-            <button
-              type="button"
-              aria-label="اشتراک‌گذاری محصول"
-              onClick={() => {
-                if (typeof navigator !== 'undefined' && navigator.share) {
-                  navigator.share({
-                    title: r.name,
-                    url: `${window.location.origin}${href}`,
-                  }).catch(() => {});
-                } else if (typeof navigator !== 'undefined') {
-                  navigator.clipboard?.writeText(
-                    `${window.location.origin}${href}`
-                  );
-                }
-              }}
-              className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[#d6b89b] bg-white/45 text-[#563824] shadow-[0_3px_10px_rgba(70,40,20,0.06)] transition-all hover:bg-[#3a2418] hover:text-[#f5dfc8]"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="18" cy="5" r="3" />
-                <circle cx="6" cy="12" r="3" />
-                <circle cx="18" cy="19" r="3" />
-                <path d="m8.7 10.7 6.6-4.4m-6.6 7 6.6 4.4" />
-              </svg>
-            </button>
-
-            <button
-              type="button"
-              onClick={(e) => addToCart(e, r.id)}
-              className="flex h-12 min-w-0 flex-1 items-center justify-center gap-3 rounded-full border border-[#9d7554]/40 bg-gradient-to-l from-[#1c110c] via-[#392317] to-[#4a2e1d] px-4 text-[13px] font-bold text-[#f4dfca] shadow-[0_7px_18px_rgba(40,22,12,0.25)] transition-all duration-300 hover:brightness-125 hover:shadow-[0_10px_25px_rgba(40,22,12,0.35)]"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="h-5 w-5 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 4h2l2.2 11h10.6L20 7H6.2" />
-                <circle cx="9" cy="19" r="1.2" />
-                <circle cx="17" cy="19" r="1.2" />
-              </svg>
-
-              <span className="truncate">
-                {isAdded ? '✓ افزوده شد' : 'افزودن به سبد خرید'}
-              </span>
-            </button>
-          </div>
-        </div>
-      </article>
-    );
-  })}
-</div>
 
             {visible.length === 0 && (
               <div className="glass-cream mt-4 rounded-[28px] py-20 text-center">

@@ -1,1105 +1,377 @@
-
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { useMemo, useState, type FormEvent, type ChangeEvent } from 'react';
 import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  ChevronDown,
-  CreditCard,
-  LockKeyhole,
-  MapPin,
-  PackageCheck,
-  ShieldCheck,
-  Truck,
-  Wallet,
-  Sparkles,
-} from 'lucide-react';
+  PartoPage, PartoHero, Container, Bg, Ico, Link, DarkBtn, PField, IMG,
+} from '@/components/parto/Parto';
 
-type PaymentMethod = 'card' | 'paypal' | 'cod';
-type ShippingMethod = 'standard' | 'express';
+type Pay = 'online' | 'gateway' | 'cod';
 
-type CheckoutItem = {
-  id: number;
-  name: string;
-  variant: string;
-  price: number;
-  image: string;
-  quantity: number;
-};
+const SHIPPING = 50_000;
+const DISCOUNT = 1_000_000;
+const UNIT_PRICE = 28_500_000;
 
-const checkoutItems: CheckoutItem[] = [
-  {
-    id: 1,
-    name: 'انگشتر',
-    variant: 'طلایی / مشکی',
-    price: 2990000,
-    image: '/images/cart/product1.png',
-    quantity: 1,
-  },
-  {
-    id: 2,
-    name: 'گردنبد',
-    variant: 'مشکی',
-    price: 1890000,
-    image: '/images/cart/product3.png',
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: 'گوشواره',
-    variant: 'سفید',
-    price: 1290000,
-    image: '/images/cart/product5.png',
-    quantity: 1,
-  },
+const faN = (n: number) => Math.round(n).toLocaleString('fa-IR').replace(/٬/g, ',');
+
+const payMethods: { id: Pay; title: string; sub?: string; icon: string }[] = [
+  { id: 'online', title: 'پرداخت آنلاین (کارت به کارت)', sub: 'پرداخت امن و سریع با کلیه کارت‌های بانکی', icon: '' },
+  { id: 'gateway', title: 'پرداخت از درگاه پرداخت', icon: 'secureCard' },
+  { id: 'cod', title: 'پرداخت در محل', icon: 'cash' },
 ];
 
-const formatNumber = (amount: number) =>
-  new Intl.NumberFormat('fa-IR', {
-    maximumFractionDigits: 0,
-  }).format(Math.round(amount));
+const steps = ['اطلاعات ارسال', 'شیوه پرداخت', 'تأیید و پرداخت'];
 
-const money = (amount: number) => `${formatNumber(amount)} تومان`;
+const cities: Record<string, string[]> = {
+  تهران: ['تهران', 'شمیرانات', 'ری', 'اسلامشهر', 'کرج'],
+  اصفهان: ['اصفهان', 'کاشان', 'نجف‌آباد'],
+  فارس: ['شیراز', 'مرودشت', 'کازرون'],
+  'خراسان رضوی': ['مشهد', 'نیشابور', 'سبزوار'],
+  'آذربایجان شرقی': ['تبریز', 'مراغه', 'مرند'],
+  گیلان: ['رشت', 'انزلی', 'لاهیجان'],
+  مازندران: ['ساری', 'بابل', 'آمل'],
+  خوزستان: ['اهواز', 'آبادان', 'دزفول'],
+};
 
-const inputClass =
-  'mt-2 w-full rounded-lg border border-[#b6a27b]/15 bg-[#100e0b] px-4 py-3.5 text-right text-sm text-[#eee9df] outline-none transition placeholder:text-white/30 hover:border-[#c9b58c]/30 focus:border-[#c9b58c]/60 focus:ring-1 focus:ring-[#c9b58c]/10';
+type Info = { name: string; phone: string; email: string; province: string; city: string; postal: string; address: string };
+type Errors = Partial<Record<keyof Info, string>>;
 
-const labelClass =
-  'text-xs font-medium text-white/60';
+/* تبدیل ارقام فارسی/عربی به انگلیسی برای اعتبارسنجی */
+const toEn = (v: string) => v.replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 1776)).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632));
+
+function validate(i: Info): Errors {
+  const e: Errors = {};
+  if (i.name.trim().split(/\s+/).filter(Boolean).length < 2) e.name = 'نام و نام خانوادگی را کامل وارد کنید';
+  if (!/^09\d{9}$/.test(toEn(i.phone).replace(/\s|-/g, ''))) e.phone = 'شماره موبایل معتبر نیست (مثال: ۰۹۱۲۱۲۳۴۵۶۷)';
+  if (i.email.trim() && !/^\S+@\S+\.\S+$/.test(i.email.trim())) e.email = 'ایمیل معتبر نیست';
+  if (!i.province) e.province = 'استان را انتخاب کنید';
+  if (!i.city) e.city = 'شهر را انتخاب کنید';
+  if (!/^\d{10}$/.test(toEn(i.postal).replace(/\s|-/g, ''))) e.postal = 'کد پستی باید ۱۰ رقم باشد';
+  if (i.address.trim().length < 10) e.address = 'آدرس کامل (خیابان، پلاک، واحد) را وارد کنید';
+  return e;
+}
+
+function FieldError({ id, msg }: { id: string; msg?: string }) {
+  return msg ? <p id={id} role="alert" className="mt-1.5 pr-4 text-[12px] font-medium text-[#b4472f]">{msg}</p> : null;
+}
+
+const bottomFeatures = [
+  { icon: 'truck', title: 'ارسال سریع به سراسر کشور', sub: '' },
+  { icon: 'gem', title: 'ضمانت اصالت کالا', sub: 'با فاکتور معتبر' },
+  { icon: 'gift', title: 'بسته‌بندی لوکس', sub: 'و مناسب هدیه' },
+  { icon: 'headset', title: 'پشتیبانی ۲۴ ساعته', sub: 'در تمام مراحل خرید' },
+];
+
+function Stepper({ current }: { current: number }) {
+  return (
+    <ol className="parto-card mx-auto flex items-center rounded-[28px] px-5 py-4 sm:px-9" aria-label="مراحل خرید">
+      {steps.map((label, i) => {
+        const n = i + 1;
+        const done = n < current;
+        const active = n === current;
+        return (
+          <li key={label} className="flex flex-1 items-center last:flex-none" aria-current={active ? 'step' : undefined}>
+            <div className="flex items-center gap-3">
+              <span
+                className={`grid h-[38px] w-[38px] flex-none place-items-center rounded-full border text-[16px] font-bold ${
+                  active ? 'parto-btn-dark border-transparent' : done ? 'border-[#a67a5c] bg-[#fbeadc] text-[#3a2418]' : 'border-[#a67a5c] bg-transparent text-[#3a2418]'
+                }`}
+              >
+                {done ? <Ico name="check" className="h-[18px] w-[18px]" sw={2} /> : n.toLocaleString('fa-IR')}
+              </span>
+              <span className={`hidden text-[14px] sm:block ${active ? 'font-bold text-[#2a170e]' : 'text-[#5a3a28]'}`}>{label}</span>
+            </div>
+            {i < steps.length - 1 && <span aria-hidden className="mx-4 h-px flex-1 bg-gradient-to-l from-[#b08060]/70 to-[#b08060]/30" />}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
 
 export default function CheckoutPage() {
-  const [payment, setPayment] = useState<PaymentMethod>('card');
-  const [shippingMethod, setShippingMethod] =
-    useState<ShippingMethod>('standard');
-  const [sameAddress, setSameAddress] = useState(true);
-  const [discountCode, setDiscountCode] = useState('');
-  const [discount, setDiscount] = useState(0);
-  const [discountMessage, setDiscountMessage] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [formMessage, setFormMessage] = useState('');
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [qty, setQty] = useState(1);
+  const [pay, setPay] = useState<Pay>('online');
+  const [note, setNote] = useState('');
+  const [done, setDone] = useState(false);
+  const [info, setInfo] = useState<Info>({ name: '', phone: '', email: '', province: '', city: '', postal: '', address: '' });
+  const [errors, setErrors] = useState<Errors>({});
 
-  const subtotal = useMemo(
-    () =>
-      checkoutItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      ),
-    []
+  const subtotal = useMemo(() => UNIT_PRICE * qty, [qty]);
+  const shipping = qty > 0 ? SHIPPING : 0;
+  const discount = qty > 0 ? DISCOUNT : 0;
+  const total = subtotal + shipping - discount;
+
+  const set = (k: keyof Info) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const v = e.target.value;
+    setInfo((p) => (k === 'province' ? { ...p, province: v, city: '' } : { ...p, [k]: v }));
+    if (errors[k]) setErrors((p) => ({ ...p, [k]: undefined }));
+  };
+
+  const goTo = (n: 1 | 2 | 3) => {
+    setStep(n);
+    if (typeof window !== 'undefined') window.scrollTo({ top: 220, behavior: 'smooth' });
+  };
+
+  const submitInfo = (e: FormEvent) => {
+    e.preventDefault();
+    const err = validate(info);
+    setErrors(err);
+    if (Object.keys(err).length === 0) goTo(2);
+    else {
+      const first = Object.keys(err)[0];
+      document.getElementById(`f-${first}`)?.focus();
+    }
+  };
+
+  const submitPay = (e: FormEvent) => {
+    e.preventDefault();
+    if (qty > 0) goTo(3);
+  };
+
+  const placeOrder = (e: FormEvent) => {
+    e.preventDefault();
+    if (qty === 0) return;
+    // TODO: ارسال سفارش به API (info, pay, note, qty)
+    setDone(true);
+  };
+
+  const payTitle = payMethods.find((m) => m.id === pay)?.title;
+
+  const summary = (
+    <section className="parto-card rounded-[26px] p-5 sm:p-6" aria-labelledby="sum-title">
+      <h2 id="sum-title" className="mb-4 flex items-center gap-3 text-[18px] font-bold text-[#2a170e]">
+        <Ico name="bag" className="h-[26px] w-[26px]" sw={1.3} /> خلاصه سفارش
+      </h2>
+
+      <div className="parto-field flex flex-row items-center gap-4 rounded-[22px] p-3">
+        <Bg src={IMG.product} className="h-[110px] w-[110px] flex-none rounded-[18px] border border-white/70 shadow-md" />
+        <div className="min-w-0 flex-1 text-right">
+          <div className="text-[16px] font-bold text-[#2a170e]">انگشتر تک نگین کلاسیک</div>
+          <div className="mt-1 text-[12px] text-[#7a5a48]">طلای سفید | سایز ۱۳</div>
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <div className="text-[15px] font-bold text-[#2a170e]">{faN(UNIT_PRICE)} <span className="text-[12px] font-medium">تومان</span></div>
+            <div className="flex items-center gap-2">
+              <div className="parto-field flex h-[34px] items-center rounded-full px-1" role="group" aria-label="تعداد">
+                <button type="button" aria-label="افزایش" onClick={() => setQty((q) => Math.min(q + 1, 9))} className="grid h-7 w-7 place-items-center rounded-full hover:bg-white/60"><Ico name="plus" className="h-4 w-4" /></button>
+                <span className="w-6 text-center text-[14px] font-bold">{qty.toLocaleString('fa-IR')}</span>
+                <button type="button" aria-label="کاهش" onClick={() => setQty((q) => Math.max(q - 1, 0))} className="grid h-7 w-7 place-items-center rounded-full hover:bg-white/60"><Ico name="minus" className="h-4 w-4" /></button>
+              </div>
+              <button type="button" aria-label="حذف محصول" onClick={() => setQty(0)} className="text-[#3a2418] transition hover:text-[#b4472f]"><Ico name="trash" className="h-[22px] w-[22px]" sw={1.4} /></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {qty === 0 && <p className="py-3 text-center text-[13px] text-[#7a5a48]">سبد خرید شما خالی است. <Link href="/product" className="underline">بازگشت به محصولات</Link></p>}
+
+      <dl className="mt-4 divide-y divide-[#a67a5c]/20 px-2 text-[14px] text-[#2a170e]">
+        <div className="flex items-center justify-between py-3"><dt className="text-[#5a3a28]">جمع محصولات</dt><dd className="text-[16px] font-bold">{faN(subtotal)} <span className="text-[12px] font-medium">تومان</span></dd></div>
+        <div className="flex items-center justify-between py-3"><dt className="text-[#5a3a28]">هزینه ارسال</dt><dd className="text-[15px] font-medium">{faN(shipping)} <span className="text-[12px]">تومان</span></dd></div>
+        <div className="flex items-center justify-between py-3"><dt className="text-[#5a3a28]">تخفیف</dt><dd className="text-[15px] font-medium text-[#3f8a4c]" dir="rtl">{discount ? `${faN(discount)}-` : '۰'} <span className="text-[12px]">تومان</span></dd></div>
+      </dl>
+
+      <div className="mt-2 flex items-center justify-between rounded-[18px] bg-gradient-to-l from-[#f2c9a8] to-[#f6d6bb] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,.7)]">
+        <span className="text-[15px] font-bold text-[#2a170e]">مبلغ قابل پرداخت</span>
+        <span className="text-[26px] font-bold leading-none text-[#2a170e]">{faN(total)} <span className="text-[13px] font-medium">تومان</span></span>
+      </div>
+
+      <ul className="mt-5 grid grid-cols-3 text-center">
+        {[
+          { icon: 'shieldCheck', t: 'پرداخت امن', s: '' },
+          { icon: 'medal', t: 'بازگشت کالا', s: 'تا ۷ روز' },
+          { icon: 'secureCard', t: 'پرداخت امن', s: '' },
+        ].map((x, i) => (
+          <li key={i} className="flex flex-col items-center gap-1 border-[#a67a5c]/30 px-2 py-2 [&:not(:last-child)]:border-l">
+            <Ico name={x.icon} className="h-[30px] w-[30px] text-[#3a2418]" sw={1.2} />
+            <span className="text-[12px] text-[#3a2418]">{x.t}</span>
+            {x.s && <span className="-mt-1 text-[11px] text-[#7a5a48]">{x.s}</span>}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 
-  const shipping =
-    subtotal === 0
-      ? 0
-      : shippingMethod === 'express'
-        ? 250000
-        : subtotal >= 1000000
-          ? 0
-          : 120000;
-
-  const tax = subtotal * 0.1;
-  const total = Math.max(0, subtotal + shipping + tax - discount);
-
-  function applyDiscount() {
-    const code = discountCode.trim().toUpperCase();
-
-    if (code === 'PARTO10') {
-      setDiscount(subtotal * 0.1);
-      setDiscountMessage('تخفیف ۱۰ درصدی با موفقیت اعمال شد.');
-    } else {
-      setDiscount(0);
-      setDiscountMessage(
-        code
-          ? 'کد تخفیف واردشده معتبر نیست.'
-          : 'لطفاً کد تخفیف را وارد کنید.'
-      );
-    }
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSubmitting(true);
-    setFormMessage('');
-
-    // این صفحه در حال حاضر نمایشی است.
-    // برای ثبت سفارش واقعی باید درگاه پرداخت و API متصل شوند.
-    window.setTimeout(() => {
-      setSubmitting(false);
-      setFormMessage(
-        'اطلاعات شما آماده است. برای تکمیل سفارش، ابتدا درگاه پرداخت به سایت متصل شود.'
-      );
-    }, 500);
-  }
+  const backBtn = (to: 1 | 2, label: string) => (
+    <button type="button" onClick={() => goTo(to)} className="inline-flex h-[52px] items-center justify-center gap-2 rounded-full border border-[#5a3a28]/70 px-7 text-[14px] font-medium text-[#2a170e] transition hover:bg-white/40">
+      <Ico name="chevR" className="h-[18px] w-[18px]" sw={1.8} /> {label}
+    </button>
+  );
 
   return (
-    <main
-      dir="rtl"
-      lang="fa"
-      className="min-h-screen overflow-hidden bg-[#090806] font-sans text-[#eee9df]"
-    >
-      <Header />
+    <PartoPage active="home">
+      <PartoHero title="تکمیل خرید" subtitle="لطفاً اطلاعات خود را بررسی و سفارش خود را نهایی کنید" big />
 
-      {/* بخش معرفی صفحه */}
-      <section className="checkout-hero relative isolate flex min-h-[300px] items-center justify-center overflow-hidden border-b border-[#b6a27b]/10 px-5 py-16 text-center sm:min-h-[350px] lg:min-h-[380px]">
-        <div className="pointer-events-none absolute inset-0 -z-30 bg-[#090806]" />
+      <Container className="-mt-3">
+        <Stepper current={done ? 4 : step} />
 
-        <div className="checkout-glow pointer-events-none absolute left-1/2 top-1/2 -z-20 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
-
-        <div className="checkout-ribbon checkout-ribbon-one pointer-events-none absolute -right-[20%] top-[10%] -z-10 h-[190px] w-[85%] rounded-[50%]" />
-        <div className="checkout-ribbon checkout-ribbon-two pointer-events-none absolute -left-[25%] top-[35%] -z-10 h-[220px] w-[90%] rounded-[50%]" />
-        <div className="checkout-ribbon checkout-ribbon-three pointer-events-none absolute -right-[15%] top-[65%] -z-10 h-[130px] w-[75%] rounded-[50%]" />
-
-        <div className="relative z-10 flex w-full flex-col items-center">
-          <div className="mb-5 flex items-center gap-4 text-[10px] font-light tracking-[0.2em] text-[#c0b294] sm:text-xs">
-            <span className="h-px w-10 bg-gradient-to-r from-transparent to-[#c0b294]/70" />
-            آخرین مرحله
-            <span className="h-px w-10 bg-gradient-to-l from-transparent to-[#c0b294]/70" />
-          </div>
-
-          <div className="relative">
-            <h1 className="checkout-wordmark bg-gradient-to-b from-[#f0e8d9] via-[#d8c9ae] to-[#8c7c60] bg-clip-text font-serif text-[20vw] font-extralight leading-[0.95] sm:text-[17vw] lg:text-[170px]">
-              پرتو
-            </h1>
-
-            <div className="checkout-streak pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="h-px w-[125%] -rotate-[16deg] bg-gradient-to-r from-transparent via-[#e2d5bd]/50 to-transparent shadow-[0_0_16px_rgba(210,190,150,0.2)]" />
-            </div>
-          </div>
-
-          <p className="mt-5 text-[10px] font-light tracking-[0.2em] text-[#c0b49c] sm:text-xs">
-            زیبایی ماندگار، انتخاب شما
-          </p>
-
-          <nav
-            aria-label="مسیر صفحه"
-            className="mt-8 flex items-center gap-3 text-xs text-white/40"
-          >
-            <Link
-              href="/collection"
-              className="transition hover:text-[#e0d0b1]"
-            >
-              مجموعه
-            </Link>
-            <span>/</span>
-            <Link
-              href="/cart"
-              className="transition hover:text-[#e0d0b1]"
-            >
-              سبد خرید
-            </Link>
-            <span>/</span>
-            <span className="text-[#cbb996]">تسویه‌حساب</span>
-          </nav>
-        </div>
-
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      </section>
-
-      {/* محتوای تسویه‌حساب */}
-      <section className="mx-auto max-w-[1320px] px-5 py-10 sm:px-8 md:py-14 lg:px-10 lg:py-16">
-        <div className="mb-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-          <div>
-            <p className="mb-3 text-xs text-[#c1ad87]">
-              تجربه‌ای شایسته‌ی شما
+        {done ? (
+          <section className="parto-card mx-auto mt-6 max-w-[560px] rounded-[28px] p-10 text-center" role="status">
+            <span className="parto-btn-dark mx-auto grid h-16 w-16 place-items-center rounded-full"><Ico name="check" className="h-8 w-8" sw={2} /></span>
+            <h2 className="mt-5 text-[24px] font-bold text-[#2a170e]">سفارش شما ثبت شد</h2>
+            <p className="mt-2 text-[14px] leading-7 text-[#6b4a38]">
+              {info.name.trim()} عزیز، از اعتماد شما سپاسگزاریم. سفارش شما به نشانی «{info.province}، {info.city}» ارسال خواهد شد و جزئیات آن در حساب کاربری شما در دسترس است.
             </p>
+            <DarkBtn href="/account" className="mt-6 h-12 px-8">مشاهده سفارش‌ها</DarkBtn>
+          </section>
+        ) : (
+          <div className="mt-6 grid grid-cols-1 items-start gap-5 lg:grid-cols-[485px_1fr]">
+            {summary}
 
-            <h2 className="font-serif text-3xl font-light sm:text-4xl">
-              سفارش خود را نهایی کنید
-              <span className="text-[#c6b28c]">.</span>
-            </h2>
+            {/* ───── مرحله ۱: اطلاعات مشتری و آدرس ───── */}
+            {step === 1 && (
+              <form onSubmit={submitInfo} noValidate className="parto-card rounded-[26px] p-5 sm:p-6" aria-labelledby="info-title">
+                <h2 id="info-title" className="mb-1 flex items-center gap-3 text-[18px] font-bold text-[#2a170e]">
+                  <Ico name="pin" className="h-[26px] w-[26px]" sw={1.3} /> اطلاعات مشتری و آدرس ارسال
+                </h2>
+                <p className="mb-5 text-[12px] text-[#7a5a48]">فیلدهای ستاره‌دار الزامی هستند.</p>
 
-            <p className="mt-3 max-w-md text-sm leading-7 text-white/45">
-              انتخاب شما به‌زودی به دستتان می‌رسد. برای ادامه، اطلاعات خود را
-              وارد کنید.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 self-start rounded-full border border-[#b6a27b]/15 px-4 py-2.5 sm:self-auto">
-            <LockKeyhole
-              size={14}
-              className="text-[#c9b58c]"
-              strokeWidth={1.4}
-            />
-            <span className="text-xs text-white/50">
-              حفظ حریم خصوصی و امنیت
-            </span>
-          </div>
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="grid items-start gap-8 lg:grid-cols-[1.5fr_0.85fr] lg:gap-12"
-        >
-          {/* فرم اطلاعات سفارش */}
-          <div className="space-y-6">
-            {/* اطلاعات تماس */}
-            <section className="checkout-panel">
-              <div className="checkout-section-heading">
-                <span className="checkout-number">۰۱</span>
-
-                <div>
-                  <h3 className="font-serif text-xl sm:text-2xl">
-                    اطلاعات تماس
-                  </h3>
-                  <p className="mt-1 text-xs leading-6 text-white/40">
-                    برای پیگیری سفارش با شما در ارتباط خواهیم بود.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-7 grid gap-5 sm:grid-cols-2">
-                <label className="sm:col-span-2">
-                  <span className={labelClass}>آدرس ایمیل *</span>
-                  <input
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    dir="ltr"
-                    placeholder="you@example.com"
-                    className={inputClass}
-                  />
-                </label>
-
-                <label>
-                  <span className={labelClass}>نام *</span>
-                  <input
-                    name="firstName"
-                    autoComplete="given-name"
-                    required
-                    placeholder="نام شما"
-                    className={inputClass}
-                  />
-                </label>
-
-                <label>
-                  <span className={labelClass}>نام خانوادگی *</span>
-                  <input
-                    name="lastName"
-                    autoComplete="family-name"
-                    required
-                    placeholder="نام خانوادگی شما"
-                    className={inputClass}
-                  />
-                </label>
-
-                <label className="sm:col-span-2">
-                  <span className={labelClass}>شماره تلفن همراه *</span>
-                  <input
-                    name="phone"
-                    type="tel"
-                    autoComplete="tel"
-                    required
-                    dir="ltr"
-                    placeholder="۰۹۱۲۱۲۳۴۵۶۷"
-                    className={inputClass}
-                  />
-                </label>
-              </div>
-            </section>
-
-            {/* نشانی ارسال */}
-            <section className="checkout-panel">
-              <div className="checkout-section-heading">
-                <span className="checkout-number">۰۲</span>
-
-                <div>
-                  <h3 className="font-serif text-xl sm:text-2xl">
-                    نشانی تحویل سفارش
-                  </h3>
-                  <p className="mt-1 text-xs leading-6 text-white/40">
-                    نشانی دقیق خود را برای تحویل سفارش وارد کنید.
-                  </p>
-                </div>
-
-                <MapPin
-                  size={19}
-                  strokeWidth={1.2}
-                  className="mr-auto text-[#c1ad87]/70"
-                />
-              </div>
-
-              <div className="mt-7 grid gap-5 sm:grid-cols-2">
-                <label className="sm:col-span-2">
-                  <span className={labelClass}>کشور *</span>
-
-                  <div className="relative">
-                    <select
-                      name="country"
-                      autoComplete="country-name"
-                      required
-                      defaultValue="IR"
-                      className={`${inputClass} appearance-none pl-10`}
-                    >
-                      <option value="IR">ایران</option>
-                      <option value="OTHER">سایر کشورها</option>
-                    </select>
-
-                    <ChevronDown
-                      size={15}
-                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40"
-                    />
+                <div className="space-y-3.5">
+                  <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                    <div>
+                      <PField icon="user" label="نام و نام خانوادگی *" id="f-name" name="name" value={info.name} onChange={set('name')} autoComplete="name" aria-invalid={!!errors.name} aria-describedby="e-name" />
+                      <FieldError id="e-name" msg={errors.name} />
+                    </div>
+                    <div>
+                      <PField icon="phone" label="شماره موبایل *" id="f-phone" name="phone" type="tel" inputMode="tel" dir="rtl" value={info.phone} onChange={set('phone')} autoComplete="tel" aria-invalid={!!errors.phone} aria-describedby="e-phone" />
+                      <FieldError id="e-phone" msg={errors.phone} />
+                    </div>
                   </div>
-                </label>
 
-                <label>
-                  <span className={labelClass}>استان *</span>
-                  <input
-                    name="province"
-                    autoComplete="address-level1"
-                    required
-                    placeholder="نام استان"
-                    className={inputClass}
-                  />
-                </label>
-
-                <label>
-                  <span className={labelClass}>شهر *</span>
-                  <input
-                    name="city"
-                    autoComplete="address-level2"
-                    required
-                    placeholder="نام شهر"
-                    className={inputClass}
-                  />
-                </label>
-
-                <label className="sm:col-span-2">
-                  <span className={labelClass}>نشانی کامل *</span>
-                  <input
-                    name="address"
-                    autoComplete="street-address"
-                    required
-                    placeholder="خیابان، کوچه، پلاک و واحد"
-                    className={inputClass}
-                  />
-                </label>
-
-                <label>
-                  <span className={labelClass}>کد پستی *</span>
-                  <input
-                    name="postalCode"
-                    autoComplete="postal-code"
-                    required
-                    placeholder="کد پستی ده‌رقمی"
-                    className={inputClass}
-                  />
-                </label>
-
-                <label>
-                  <span className={labelClass}>توضیحات سفارش</span>
-                  <input
-                    name="orderNote"
-                    placeholder="اختیاری"
-                    className={inputClass}
-                  />
-                </label>
-              </div>
-
-              <p className="mt-5 flex items-start gap-2 text-xs leading-6 text-white/40">
-                <ShieldCheck
-                  size={15}
-                  className="mt-1 shrink-0 text-[#c1ad87]"
-                />
-                اطلاعات شما برای آماده‌سازی و تحویل سفارش استفاده می‌شود.
-              </p>
-            </section>
-
-            {/* روش ارسال */}
-            <section className="checkout-panel">
-              <div className="checkout-section-heading">
-                <span className="checkout-number">۰۳</span>
-
-                <div>
-                  <h3 className="font-serif text-xl sm:text-2xl">
-                    روش ارسال
-                  </h3>
-                  <p className="mt-1 text-xs leading-6 text-white/40">
-                    روش مناسب برای دریافت سفارش خود را انتخاب کنید.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-7 space-y-3">
-                <label
-                  className={`checkout-option ${
-                    shippingMethod === 'standard'
-                      ? 'checkout-option-active'
-                      : ''
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="shipping"
-                    value="standard"
-                    checked={shippingMethod === 'standard'}
-                    onChange={() => setShippingMethod('standard')}
-                    className="checkout-radio"
-                  />
-
-                  <Truck
-                    size={20}
-                    strokeWidth={1.3}
-                    className="text-[#c1ad87]"
-                  />
-
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm">ارسال عادی</span>
-                    <span className="mt-1 block text-xs leading-5 text-white/40">
-                      زمان تحویل تقریبی: ۵ تا ۷ روز کاری
-                    </span>
-                  </span>
-
-                  <span className="text-xs text-[#ded1b7]">
-                    {subtotal >= 1000000
-                      ? 'رایگان'
-                      : money(120000)}
-                  </span>
-                </label>
-
-                <label
-                  className={`checkout-option ${
-                    shippingMethod === 'express'
-                      ? 'checkout-option-active'
-                      : ''
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="shipping"
-                    value="express"
-                    checked={shippingMethod === 'express'}
-                    onChange={() => setShippingMethod('express')}
-                    className="checkout-radio"
-                  />
-
-                  <PackageCheck
-                    size={20}
-                    strokeWidth={1.3}
-                    className="text-[#c1ad87]"
-                  />
-
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm">ارسال سریع</span>
-                    <span className="mt-1 block text-xs leading-5 text-white/40">
-                      زمان تحویل تقریبی: ۲ تا ۳ روز کاری
-                    </span>
-                  </span>
-
-                  <span className="text-xs text-[#ded1b7]">
-                    {money(250000)}
-                  </span>
-                </label>
-              </div>
-            </section>
-
-            {/* روش پرداخت */}
-            <section className="checkout-panel">
-              <div className="checkout-section-heading">
-                <span className="checkout-number">۰۴</span>
-
-                <div>
-                  <h3 className="font-serif text-xl sm:text-2xl">
-                    روش پرداخت
-                  </h3>
-                  <p className="mt-1 text-xs leading-6 text-white/40">
-                    روش پرداخت موردنظر خود را انتخاب کنید.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-7 space-y-3">
-                <label
-                  className={`checkout-option ${
-                    payment === 'card' ? 'checkout-option-active' : ''
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="card"
-                    checked={payment === 'card'}
-                    onChange={() => setPayment('card')}
-                    className="checkout-radio"
-                  />
-
-                  <CreditCard
-                    size={20}
-                    strokeWidth={1.3}
-                    className="text-[#c1ad87]"
-                  />
-
-                  <span className="flex-1">
-                    <span className="block text-sm">پرداخت اینترنتی</span>
-                    <span className="mt-1 block text-xs leading-5 text-white/40">
-                      پرداخت از طریق درگاه بانکی
-                    </span>
-                  </span>
-
-                  <LockKeyhole size={14} className="text-white/30" />
-                </label>
-
-                {payment === 'card' && (
-                  <div className="payment-details">
-                    <p className="text-xs leading-7 text-white/45">
-                      پس از اتصال درگاه بانکی، پرداخت سفارش به‌صورت امن انجام
-                      خواهد شد.
-                    </p>
+                  <div>
+                    <PField icon="mail" label="ایمیل (اختیاری)" id="f-email" name="email" type="email" value={info.email} onChange={set('email')} autoComplete="email" aria-invalid={!!errors.email} aria-describedby="e-email" />
+                    <FieldError id="e-email" msg={errors.email} />
                   </div>
-                )}
 
-                <label
-                  className={`checkout-option ${
-                    payment === 'paypal' ? 'checkout-option-active' : ''
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="paypal"
-                    checked={payment === 'paypal'}
-                    onChange={() => setPayment('paypal')}
-                    className="checkout-radio"
-                  />
+                  <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                    <div>
+                      <PField as="select" icon="pin" label="استان *" id="f-province" name="province" value={info.province} onChange={set('province')} aria-invalid={!!errors.province} aria-describedby="e-province">
+                        <option value="">استان *</option>
+                        {Object.keys(cities).map((p) => <option key={p} value={p}>{p}</option>)}
+                      </PField>
+                      <FieldError id="e-province" msg={errors.province} />
+                    </div>
+                    <div>
+                      <PField as="select" icon="pin" label="شهر *" id="f-city" name="city" value={info.city} onChange={set('city')} disabled={!info.province} aria-invalid={!!errors.city} aria-describedby="e-city">
+                        <option value="">شهر *</option>
+                        {(cities[info.province] ?? []).map((c) => <option key={c} value={c}>{c}</option>)}
+                      </PField>
+                      <FieldError id="e-city" msg={errors.city} />
+                    </div>
+                  </div>
 
-                  <Wallet
-                    size={20}
-                    strokeWidth={1.3}
-                    className="text-[#c1ad87]"
-                  />
+                  <div>
+                    <PField icon="pin" label="کد پستی (۱۰ رقم) *" id="f-postal" name="postal" inputMode="numeric" dir="rtl" maxLength={10} value={info.postal} onChange={set('postal')} autoComplete="postal-code" aria-invalid={!!errors.postal} aria-describedby="e-postal" />
+                    <FieldError id="e-postal" msg={errors.postal} />
+                  </div>
 
-                  <span className="flex-1">
-                    <span className="block text-sm">کیف پول</span>
-                    <span className="mt-1 block text-xs leading-5 text-white/40">
-                      پرداخت از طریق کیف پول، در صورت پشتیبانی فروشگاه
-                    </span>
-                  </span>
-                </label>
+                  <div>
+                    <PField as="textarea" rows={3} icon="pin" label="آدرس کامل (خیابان، پلاک، واحد) *" id="f-address" name="address" value={info.address} onChange={set('address')} autoComplete="street-address" aria-invalid={!!errors.address} aria-describedby="e-address" />
+                    <FieldError id="e-address" msg={errors.address} />
+                  </div>
+                </div>
 
-                <label
-                  className={`checkout-option ${
-                    payment === 'cod' ? 'checkout-option-active' : ''
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="cod"
-                    checked={payment === 'cod'}
-                    onChange={() => setPayment('cod')}
-                    className="checkout-radio"
-                  />
-
-                  <PackageCheck
-                    size={20}
-                    strokeWidth={1.3}
-                    className="text-[#c1ad87]"
-                  />
-
-                  <span className="flex-1">
-                    <span className="block text-sm">پرداخت هنگام تحویل</span>
-                    <span className="mt-1 block text-xs leading-5 text-white/40">
-                      در صورت فعال بودن این روش برای نشانی شما
-                    </span>
-                  </span>
-                </label>
-
-                <p className="flex items-start gap-2 pt-2 text-xs leading-6 text-white/35">
-                  <ShieldCheck
-                    size={14}
-                    className="mt-1 shrink-0 text-[#c1ad87]"
-                  />
-                  فعال بودن روش‌های پرداخت به تنظیمات فروشگاه و درگاه پرداخت
-                  بستگی دارد.
-                </p>
-              </div>
-            </section>
-
-            {/* نشانی صورتحساب */}
-            <section className="checkout-panel">
-              <label className="flex cursor-pointer items-start gap-3">
-                <input
-                  type="checkbox"
-                  checked={sameAddress}
-                  onChange={(event) => setSameAddress(event.target.checked)}
-                  className="mt-1 accent-[#c1ad87]"
-                />
-
-                <span>
-                  <span className="block text-sm">
-                    نشانی صورتحساب با نشانی ارسال یکسان است
-                  </span>
-                  <span className="mt-1 block text-xs leading-6 text-white/40">
-                    از همین نشانی برای اطلاعات صورتحساب استفاده شود.
-                  </span>
-                </span>
-              </label>
-
-              {!sameAddress && (
-                <p className="mt-4 border-t border-[#b6a27b]/10 pt-4 text-xs leading-7 text-white/45">
-                  برای ثبت نشانی جداگانه‌ی صورتحساب، لازم است فیلدهای مربوط به
-                  آن نیز به فرم اضافه شوند.
-                </p>
-              )}
-            </section>
-
-            {/* پیام وضعیت فرم */}
-            {formMessage && (
-              <div
-                role="status"
-                className="rounded-lg border border-[#b6a27b]/20 bg-[#b6a27b]/[0.05] p-4 text-xs leading-7 text-[#d9c9aa]"
-              >
-                {formMessage}
-              </div>
+                <div className="mt-6 flex flex-col-reverse items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <Link href="/cart" className="inline-flex h-[52px] items-center justify-center gap-2 rounded-full border border-[#5a3a28]/70 px-7 text-[14px] font-medium text-[#2a170e] transition hover:bg-white/40">
+                    <Ico name="chevR" className="h-[18px] w-[18px]" sw={1.8} /> بازگشت به سبد خرید
+                  </Link>
+                  <DarkBtn type="submit" disabled={qty === 0} className="h-[58px] w-full text-[16px] sm:w-[315px]">
+                    ادامه و انتخاب شیوه پرداخت <Ico name="arrowL" className="h-[20px] w-[20px]" sw={1.8} />
+                  </DarkBtn>
+                </div>
+              </form>
             )}
 
-            <button
-              type="submit"
-              disabled={submitting || checkoutItems.length === 0}
-              className="group flex min-h-[58px] w-full items-center justify-center gap-3 rounded-full bg-[#d7cbb3] px-6 py-4 text-sm font-medium text-[#17140f] transition duration-300 hover:bg-[#eee3cd] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {submitting
-                ? 'در حال آماده‌سازی سفارش...'
-                : 'ادامه و پرداخت امن'}
+            {/* ───── مرحله ۲: شیوه پرداخت ───── */}
+            {step === 2 && (
+              <form onSubmit={submitPay} className="space-y-4">
+                <fieldset className="parto-card rounded-[26px] p-5 sm:p-6">
+                  <legend className="sr-only">شیوه پرداخت</legend>
+                  <h2 className="mb-4 text-[18px] font-bold text-[#2a170e]" aria-hidden>شیوه پرداخت</h2>
+                  <div className="space-y-3">
+                    {payMethods.map((m) => {
+                      const on = pay === m.id;
+                      return (
+                        <label key={m.id} className={`parto-field flex min-h-[60px] cursor-pointer items-center gap-4 rounded-[22px] px-5 py-3 transition ${on ? '!border-[#c8a07c]' : ''}`}>
+                          <input type="radio" name="pay" value={m.id} checked={on} onChange={() => setPay(m.id)} className="peer sr-only" />
+                          <span className={`grid h-[26px] w-[26px] flex-none place-items-center rounded-full border-[1.5px] ${on ? 'border-[#3a2418]' : 'border-[#c9a07c]'} peer-focus-visible:ring-2 peer-focus-visible:ring-[#c8a07c]`}>
+                            {on && <span className="h-3 w-3 rounded-full bg-[#2a170e]" />}
+                          </span>
+                          <span className="flex-1 text-right">
+                            <span className="block text-[15px] font-medium text-[#2a170e]">{m.title}</span>
+                            {m.sub && <span className="mt-0.5 block text-[12px] text-[#7a5a48]">{m.sub}</span>}
+                          </span>
+                          {m.icon && <Ico name={m.icon} className="h-[30px] w-[30px] flex-none text-[#3a2418]" sw={1.3} />}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
 
-              {!submitting && (
-                <ArrowLeft
-                  size={16}
-                  className="transition-transform duration-300 group-hover:-translate-x-1"
-                />
-              )}
-            </button>
+                <section className="parto-card rounded-[26px] p-5 sm:p-6">
+                  <label htmlFor="order-note" className="mb-3 flex items-center gap-3 text-[16px] font-bold text-[#2a170e]">
+                    <Ico name="pencil" className="h-[24px] w-[24px] text-[#7a4a2c]" sw={1.4} />
+                    <span>توضیحات سفارش <span className="text-[13px] font-medium text-[#5a3a28]">(اختیاری)</span></span>
+                  </label>
+                  <textarea id="order-note" rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="در صورت نیاز، توضیحات بیشتری درباره سفارش خود بنویسید..." className="parto-field w-full resize-none rounded-[20px] px-5 py-4 text-right text-[14px]" />
+                </section>
 
-            <p className="text-center text-xs leading-6 text-white/30">
-              با ادامه فرایند، شرایط استفاده و سیاست حفظ حریم خصوصی فروشگاه را
-              می‌پذیرید.
-            </p>
+                <div className="flex flex-col-reverse items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  {backBtn(1, 'بازگشت به آدرس')}
+                  <DarkBtn type="submit" disabled={qty === 0} className="h-[58px] w-full text-[16px] sm:w-[315px]">
+                    ادامه و تأیید نهایی <Ico name="arrowL" className="h-[20px] w-[20px]" sw={1.8} />
+                  </DarkBtn>
+                </div>
+              </form>
+            )}
+
+            {/* ───── مرحله ۳: تأیید و پرداخت ───── */}
+            {step === 3 && (
+              <form onSubmit={placeOrder} className="space-y-4">
+                <section className="parto-card rounded-[26px] p-5 sm:p-6" aria-labelledby="rev-title">
+                  <h2 id="rev-title" className="mb-4 flex items-center justify-between text-[18px] font-bold text-[#2a170e]">
+                    <span className="flex items-center gap-3"><Ico name="pin" className="h-[24px] w-[24px]" sw={1.3} /> اطلاعات گیرنده و آدرس</span>
+                    <button type="button" onClick={() => goTo(1)} className="text-[13px] font-bold underline underline-offset-4">ویرایش</button>
+                  </h2>
+                  <dl className="parto-field space-y-2.5 rounded-[20px] px-5 py-4 text-[14px]">
+                    <div className="flex gap-3"><dt className="w-[96px] flex-none text-[#7a5a48]">گیرنده</dt><dd className="font-medium">{info.name}</dd></div>
+                    <div className="flex gap-3"><dt className="w-[96px] flex-none text-[#7a5a48]">موبایل</dt><dd className="font-medium">{info.phone}</dd></div>
+                    {info.email && <div className="flex gap-3"><dt className="w-[96px] flex-none text-[#7a5a48]">ایمیل</dt><dd className="font-medium" dir="ltr">{info.email}</dd></div>}
+                    <div className="flex gap-3"><dt className="w-[96px] flex-none text-[#7a5a48]">آدرس</dt><dd className="font-medium leading-7">{info.province}، {info.city}، {info.address}</dd></div>
+                    <div className="flex gap-3"><dt className="w-[96px] flex-none text-[#7a5a48]">کد پستی</dt><dd className="font-medium">{info.postal}</dd></div>
+                  </dl>
+                </section>
+
+                <section className="parto-card rounded-[26px] p-5 sm:p-6">
+                  <h2 className="mb-4 flex items-center justify-between text-[18px] font-bold text-[#2a170e]">
+                    <span className="flex items-center gap-3"><Ico name="card" className="h-[24px] w-[24px]" sw={1.3} /> شیوه پرداخت</span>
+                    <button type="button" onClick={() => goTo(2)} className="text-[13px] font-bold underline underline-offset-4">ویرایش</button>
+                  </h2>
+                  <p className="parto-field rounded-[20px] px-5 py-4 text-[14px] font-medium">{payTitle}</p>
+                  {note.trim() && <p className="parto-field mt-3 rounded-[20px] px-5 py-4 text-[13px] leading-7 text-[#5a3a28]"><b className="text-[#2a170e]">توضیحات: </b>{note}</p>}
+                </section>
+
+                <div className="flex flex-col-reverse items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  {backBtn(2, 'بازگشت به پرداخت')}
+                  <DarkBtn type="submit" disabled={qty === 0} className="h-[58px] w-full text-[16px] sm:w-[315px]">
+                    <Ico name="lock" className="h-[20px] w-[20px]" /> پرداخت و ثبت سفارش
+                  </DarkBtn>
+                </div>
+              </form>
+            )}
           </div>
+        )}
 
-          {/* خلاصه سفارش */}
-          <aside className="h-fit lg:sticky lg:top-24">
-            <div className="overflow-hidden rounded-xl border border-[#b6a27b]/15 bg-[#0d0b08]">
-              <div className="border-b border-[#b6a27b]/10 px-5 py-6 sm:px-7">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="font-serif text-2xl">خلاصه سفارش</h3>
-
-                  <span className="text-xs text-white/40">
-                    {formatNumber(
-                      checkoutItems.reduce(
-                        (n, item) => n + item.quantity,
-                        0
-                      )
-                    )}{' '}
-                    کالا
-                  </span>
-                </div>
-
-                <p className="mt-2 text-xs leading-6 text-white/40">
-                  انتخابی دقیق، برای شما.
-                </p>
-              </div>
-
-              <div className="px-5 sm:px-7">
-                {checkoutItems.map((item) => (
-                  <article
-                    key={item.id}
-                    className="flex gap-4 border-b border-[#b6a27b]/10 py-5 last:border-b-0"
-                  >
-                    <div className="relative h-[88px] w-[76px] shrink-0 overflow-hidden rounded-md border border-[#b6a27b]/10 bg-[#11100d]">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        sizes="76px"
-                        className="object-cover"
-                      />
-
-                      <span className="absolute right-1 top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-[#0d0b08] bg-[#d7cbb3] px-1 text-xs font-medium text-[#17140f]">
-                        {formatNumber(item.quantity)}
-                      </span>
-                    </div>
-
-                    <div className="flex min-w-0 flex-1 flex-col justify-center">
-                      <h4 className="font-serif text-base leading-7">
-                        {item.name}
-                      </h4>
-
-                      <p className="mt-1 text-xs text-white/40">
-                        {item.variant}
-                      </p>
-
-                      <p className="mt-3 text-sm text-[#ded1b7]">
-                        {money(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-
-              {/* کد تخفیف */}
-              <div className="border-y border-[#b6a27b]/10 px-5 py-5 sm:px-7">
-                <label className={labelClass} htmlFor="discountCode">
-                  کد هدیه یا تخفیف
-                </label>
-
-                <div className="mt-3 flex gap-2">
-                  <input
-                    id="discountCode"
-                    value={discountCode}
-                    onChange={(event) => {
-                      setDiscountCode(event.target.value);
-                      setDiscountMessage('');
-                    }}
-                    dir="ltr"
-                    placeholder="کد تخفیف"
-                    className="min-w-0 flex-1 rounded-lg border border-[#b6a27b]/15 bg-[#100e0b] px-3 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-[#c9b58c]/50"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={applyDiscount}
-                    className="rounded-lg border border-[#b6a27b]/30 px-4 text-xs text-[#d7c7a8] transition hover:bg-[#b6a27b]/10"
-                  >
-                    اعمال
-                  </button>
-                </div>
-
-                {discountMessage && (
-                  <p
-                    role="status"
-                    className={`mt-3 text-xs leading-6 ${
-                      discount > 0 ? 'text-[#c7b58e]' : 'text-white/45'
-                    }`}
-                  >
-                    {discountMessage}
-                  </p>
-                )}
-              </div>
-
-              {/* محاسبه مبلغ سفارش */}
-              <div className="px-5 py-6 sm:px-7">
-                <div className="space-y-4 text-sm">
-                  <div className="flex items-center justify-between gap-3 text-white/50">
-                    <span>جمع محصولات</span>
-                    <span className="text-white/80">{money(subtotal)}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-3 text-white/50">
-                    <span>هزینه ارسال</span>
-                    <span className="text-white/80">
-                      {shipping === 0 ? 'رایگان' : money(shipping)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-3 text-white/50">
-                    <span>مالیات تخمینی</span>
-                    <span className="text-white/80">{money(tax)}</span>
-                  </div>
-
-                  {discount > 0 && (
-                    <div className="flex items-center justify-between gap-3 text-[#cbb996]">
-                      <span>تخفیف</span>
-                      <span>{money(discount)}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="my-6 h-px bg-gradient-to-r from-transparent via-[#b6a27b]/25 to-transparent" />
-
-                <div className="flex items-end justify-between gap-3">
-                  <div>
-                    <p className="font-serif text-xl">مبلغ نهایی</p>
-                    <p className="mt-2 text-xs text-white/35">
-                      شامل هزینه‌های محاسبه‌شده
-                    </p>
-                  </div>
-
-                  <span className="font-serif text-2xl font-light tracking-tight text-[#e8decb] sm:text-3xl">
-                    {money(total)}
-                  </span>
-                </div>
-
-                <div className="mt-6 flex items-start gap-3 rounded-lg border border-[#b6a27b]/10 bg-white/[0.015] p-4">
-                  <Sparkles
-                    size={17}
-                    strokeWidth={1.2}
-                    className="mt-1 shrink-0 text-[#c1ad87]"
-                  />
-
-                  <p className="text-xs leading-6 text-white/45">
-                    هر انتخاب در پرتو با دقت انجام شده است؛ از همراهی شما با
-                    ما سپاسگزاریم.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* مزایای خرید */}
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2 rounded-lg border border-[#b6a27b]/10 px-3 py-4">
-                <ShieldCheck
-                  size={17}
-                  strokeWidth={1.2}
-                  className="shrink-0 text-[#c1ad87]"
-                />
-
-                <span className="text-xs leading-5 text-white/45">
-                  پرداخت امن
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-lg border border-[#b6a27b]/10 px-3 py-4">
-                <PackageCheck
-                  size={17}
-                  strokeWidth={1.2}
-                  className="shrink-0 text-[#c1ad87]"
-                />
-
-                <span className="text-xs leading-5 text-white/45">
-                  بسته‌بندی ویژه
-                </span>
-              </div>
-            </div>
-
-            <Link
-              href="/cart"
-              className="mt-6 inline-flex items-center gap-3 text-sm text-[#c7b99c] transition hover:text-white"
-            >
-              <ArrowRight size={15} strokeWidth={1.3} />
-              بازگشت به سبد خرید
-            </Link>
-          </aside>
-        </form>
-      </section>
-
-      {/* بخش پایانی برند */}
-      <section className="border-y border-[#b6a27b]/10">
-        <div className="mx-auto flex max-w-[1320px] flex-col items-center justify-center gap-3 px-5 py-10 text-center">
-          <div className="flex items-center gap-3 text-[#c1ad87]">
-            <span className="h-px w-8 bg-[#b6a27b]/30" />
-            <Check size={13} strokeWidth={1.3} />
-            <span className="h-px w-8 bg-[#b6a27b]/30" />
-          </div>
-
-          <p className="font-serif text-xl">
-            هنر انتخابی ماندگار
-          </p>
-
-          <p className="text-xs tracking-wide text-white/35">
-            پرتو — زیبایی در جزئیات
-          </p>
-        </div>
-      </section>
-
-      <Footer />
-
-      <style jsx>{`
-        .checkout-hero {
-          background:
-            radial-gradient(
-              ellipse at 50% 48%,
-              rgba(190, 168, 126, 0.055),
-              transparent 45%
-            ),
-            linear-gradient(
-              115deg,
-              #090806 0%,
-              #100e0a 48%,
-              #080705 100%
-            );
-        }
-
-        .checkout-glow {
-          background: radial-gradient(
-            circle,
-            rgba(190, 166, 121, 0.075) 0%,
-            rgba(177, 151, 106, 0.025) 38%,
-            transparent 70%
-          );
-          filter: blur(65px);
-          animation: checkout-glow 7s ease-in-out infinite alternate;
-        }
-
-        .checkout-ribbon {
-          border-top: 1px solid rgba(194, 171, 128, 0.13);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.025);
-          background: linear-gradient(
-            165deg,
-            transparent 32%,
-            rgba(190, 166, 122, 0.035) 42%,
-            rgba(255, 255, 255, 0.022) 46%,
-            transparent 60%
-          );
-          box-shadow: inset 0 9px 18px rgba(255, 255, 255, 0.012);
-          filter: blur(1.5px);
-          transform: rotate(-17deg);
-        }
-
-        .checkout-ribbon-one {
-          animation: checkout-drift 14s ease-in-out infinite alternate;
-        }
-
-        .checkout-ribbon-two {
-          transform: rotate(-25deg);
-          border-top-color: rgba(194, 166, 119, 0.14);
-          animation: checkout-drift 18s ease-in-out infinite alternate-reverse;
-        }
-
-        .checkout-ribbon-three {
-          transform: rotate(12deg);
-          border-top-color: rgba(255, 255, 255, 0.07);
-        }
-
-        .checkout-wordmark {
-          filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.55));
-        }
-
-        .checkout-streak {
-          opacity: 0.65;
-          mix-blend-mode: screen;
-          animation: checkout-streak 9s ease-in-out infinite;
-        }
-
-        .checkout-panel {
-          border: 1px solid rgba(182, 162, 123, 0.13);
-          border-radius: 12px;
-          background: linear-gradient(
-            145deg,
-            rgba(17, 14, 10, 0.96),
-            rgba(12, 10, 8, 0.98)
-          );
-          padding: 24px;
-          transition: border-color 300ms ease;
-        }
-
-        .checkout-panel:hover {
-          border-color: rgba(182, 162, 123, 0.2);
-        }
-
-        .checkout-section-heading {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-        }
-
-        .checkout-number {
-          display: flex;
-          height: 37px;
-          width: 37px;
-          flex-shrink: 0;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid rgba(182, 162, 123, 0.22);
-          border-radius: 50%;
-          color: #c1ad87;
-          font-family: inherit;
-          font-size: 13px;
-          font-weight: 300;
-        }
-
-        .checkout-option {
-          display: flex;
-          min-height: 76px;
-          align-items: center;
-          gap: 14px;
-          border: 1px solid rgba(182, 162, 123, 0.13);
-          border-radius: 9px;
-          padding: 15px;
-          cursor: pointer;
-          transition:
-            border-color 250ms ease,
-            background 250ms ease;
-        }
-
-        .checkout-option:hover {
-          border-color: rgba(182, 162, 123, 0.32);
-          background: rgba(182, 162, 123, 0.025);
-        }
-
-        .checkout-option-active {
-          border-color: rgba(193, 173, 135, 0.48);
-          background: rgba(182, 162, 123, 0.045);
-        }
-
-        .checkout-radio {
-          width: 14px;
-          height: 14px;
-          flex-shrink: 0;
-          accent-color: #c1ad87;
-        }
-
-        .payment-details {
-          margin: -2px 0 12px;
-          border-right: 1px solid rgba(182, 162, 123, 0.35);
-          padding: 12px 14px;
-        }
-
-        @keyframes checkout-glow {
-          from {
-            opacity: 0.55;
-            transform: translate(-50%, -50%) scale(0.94);
-          }
-
-          to {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1.06);
-          }
-        }
-
-        @keyframes checkout-drift {
-          from {
-            translate: 0 0;
-          }
-
-          to {
-            translate: 0 -10px;
-          }
-        }
-
-        @keyframes checkout-streak {
-          0%,
-          100% {
-            opacity: 0.3;
-            transform: translateX(-3%);
-          }
-
-          50% {
-            opacity: 0.75;
-            transform: translateX(3%);
-          }
-        }
-
-        @media (min-width: 640px) {
-          .checkout-panel {
-            padding: 30px;
-          }
-        }
-
-        @media (max-width: 420px) {
-          .checkout-panel {
-            padding: 18px;
-          }
-
-          .checkout-option {
-            gap: 10px;
-            padding: 12px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .checkout-glow,
-          .checkout-ribbon-one,
-          .checkout-ribbon-two,
-          .checkout-streak {
-            animation: none;
-          }
-        }
-      `}</style>
-    </main>
+        {/* نوار مزایا */}
+        <ul className="parto-card mt-6 grid grid-cols-2 rounded-[26px] py-5 lg:grid-cols-4">
+          {bottomFeatures.map((f) => (
+            <li key={f.title} className="flex flex-col items-center gap-1 border-[#a67a5c]/35 px-3 py-3 text-center lg:border-l lg:py-1 lg:first:border-l-0">
+              <Ico name={f.icon} className="h-[32px] w-[32px] text-[#3a2418]" sw={1.2} />
+              <span className="mt-1 text-[13px] font-medium text-[#2a170e]">{f.title}</span>
+              {f.sub && <span className="text-[11px] text-[#7a5a48]">{f.sub}</span>}
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </PartoPage>
   );
 }

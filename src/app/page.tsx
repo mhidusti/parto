@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { Categories, Brands } from "@/components/home/CategoriesBrands";
 import { NewestProducts, BestSellers } from "@/components/home/ProductSections";
 import { BrandStory, SpecialCollections } from "@/components/home/StoryCollections";
+import { TopBanners, BottomBanners } from "@/components/home/PromoBanners";
 import { Features, Newsletter } from "@/components/home/FeaturesNewsletter";
 
 export default function Home() {
@@ -18,11 +19,13 @@ export default function Home() {
       <Header />
       <HeroSection />
       <Categories />
+      <TopBanners />
       <Brands />
       <NewestProducts />
       <BestSellers />
       <BrandStory />
       <SpecialCollections />
+      <BottomBanners />
       <Features />
       <Newsletter />
       <Footer />
